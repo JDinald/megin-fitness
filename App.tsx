@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 type Exercise = {
   id: string;
@@ -74,11 +73,9 @@ function getDefaultState(): PersistedState {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.safe} edges={["top", "left", "right"]}>
-        <FridayScreen />
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <View style={styles.safe}>
+      <FridayScreen />
+    </View>
   );
 }
 
