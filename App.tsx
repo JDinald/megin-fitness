@@ -1,16 +1,28 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TabNavigator } from "./src/navigation/TabNavigator";
 import { COLORS } from "./src/theme";
 
+const theme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: COLORS.boneWhite,
+    background: COLORS.nightBlack,
+    card: COLORS.concreteGray,
+    text: COLORS.boneWhite,
+    border: COLORS.steelGray,
+    notification: COLORS.infectedOrange,
+  },
+};
+
 export default function App() {
   return (
-    <View style={styles.safe}>
-      <TabNavigator />
-    </View>
+    <SafeAreaProvider>
+      <NavigationContainer theme={theme}>
+        <TabNavigator />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.nightBlack },
-});
