@@ -10,6 +10,7 @@ type ExerciseCardProps = {
   setsDone?: boolean[];
   onToggle: () => void;
   onToggleSet: (setIndex: number) => void;
+  primaryColor?: string;
 };
 
 export function ExerciseCard({
@@ -18,6 +19,7 @@ export function ExerciseCard({
   setsDone,
   onToggle,
   onToggleSet,
+  primaryColor = COLORS.beastPurple,
 }: ExerciseCardProps) {
   const neon = useRef(new Animated.Value(0)).current;
 
@@ -44,10 +46,10 @@ export function ExerciseCard({
       ? COLORS.completeGreen
       : ex.variant === "pull" || ex.variant === "longevity"
       ? COLORS.longevityGold
-      : COLORS.beastPurple;
+      : primaryColor;
 
   const checkboxBorder =
-    ex.variant === "pull" || ex.variant === "longevity" ? COLORS.longevityGold : COLORS.beastPurple;
+    ex.variant === "pull" || ex.variant === "longevity" ? COLORS.longevityGold : primaryColor;
 
   return (
     <View style={[styles.card, checked && styles.cardCompleted]}>
