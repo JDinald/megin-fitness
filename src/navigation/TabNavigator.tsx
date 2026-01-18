@@ -3,19 +3,9 @@ import { View, Text, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MondayScreen } from "../screens/MondayScreen";
+import { WednesdayScreen } from "../screens/WednesdayScreen";
 import { WorkoutScreen } from "../screens/WorkoutScreen";
 import { COLORS } from "../theme";
-
-// Placeholder for Wednesday screen
-function WednesdayScreen() {
-  return (
-    <View style={styles.placeholder}>
-      <Text style={styles.placeholderTitle}>WEDNESDAY</Text>
-      <Text style={styles.placeholderSubtitle}>Survival Day</Text>
-      <Text style={styles.placeholderText}>Coming Soon</Text>
-    </View>
-  );
-}
 
 const Tab = createBottomTabNavigator();
 
@@ -115,30 +105,5 @@ const styles = StyleSheet.create({
   },
   dayNumberActive: {
     color: COLORS.boneWhite,
-  },
-  placeholder: {
-    flex: 1,
-    backgroundColor: COLORS.nightBlack,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  placeholderTitle: {
-    fontSize: 32,
-    letterSpacing: 4,
-    color: COLORS.toxicGreen,
-    fontWeight: "900",
-    marginBottom: 8,
-  },
-  placeholderSubtitle: {
-    fontSize: 16,
-    letterSpacing: 2,
-    color: COLORS.muted,
-    marginBottom: 20,
-  },
-  placeholderText: {
-    fontSize: 14,
-    color: COLORS.steelGray,
-    fontStyle: "italic",
   },
 });
