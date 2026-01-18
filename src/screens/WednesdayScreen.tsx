@@ -12,7 +12,6 @@ import {
 } from "../utils/wednesdayWorkoutData";
 import { COLORS } from "../theme";
 import { useWednesdayWorkoutStore } from "../store/wednesdayWorkoutStore";
-import { CardioOption } from "../services/wednesdayStorage";
 
 export function WednesdayScreen() {
   const {

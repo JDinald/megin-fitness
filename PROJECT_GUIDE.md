@@ -7,14 +7,14 @@ A React Native (Expo) fitness tracking app for a 3-day sustainable workout progr
 ### Current
 - **Framework:** React Native with Expo SDK 54
 - **Language:** TypeScript
-- **State Management:** Custom hooks with React useState/useEffect
-- **Storage:** @react-native-async-storage/async-storage
+- **State Management:** Zustand with persist middleware
+- **Storage:** react-native-mmkv
 - **Styling:** React Native StyleSheet + expo-linear-gradient
 
-### To-Do
-- [ ] Expo SDK 54 (managed workflow)
-- [ ] Zustand (state)
-- [ ] MMKV (storage)
+### Completed
+- [x] Expo SDK 54 (managed workflow)
+- [x] Zustand (state)
+- [x] MMKV (storage)
 
 ## Project Structure
 
@@ -35,8 +35,7 @@ src/
 │   └── workoutStore.ts         # Friday state & persistence
 │
 ├── services/            # External integrations
-│   ├── mondayStorage.ts    # AsyncStorage for Monday
-│   └── storage.ts          # AsyncStorage for Friday
+│   └── mmkv.ts             # MMKV storage for Zustand persist
 │
 ├── utils/               # Data & utilities
 │   ├── mondayWorkoutData.ts    # Monday exercise definitions
@@ -62,14 +61,14 @@ src/
    export const {DAY}_EXERCISES: Exercise[] = [...];
    ```
 
-2. **Create storage service** in `src/services/{day}Storage.ts`:
+2. **Create store hook** in `src/store/{day}WorkoutStore.ts`:
+   - Import day-specific exercises
+   - Use Zustand `create()` with `persist()` middleware
+   - Use `zustandStorage` from `../services/mmkv`
    - Use unique storage key: `"{day}-sustainable-v1"`
-
-3. **Create store hook** in `src/store/{day}WorkoutStore.ts`:
-   - Import day-specific exercises and storage
    - Export `use{Day}WorkoutStore()` hook
 
-4. **Create screen** in `src/screens/{Day}Screen.tsx`:
+3. **Create screen** in `src/screens/{Day}Screen.tsx`:
    - Import day-specific store and exercises
    - Set `primaryColor` prop on ExerciseCard for day theme
 
@@ -99,10 +98,10 @@ type Exercise = {
 
 Pull/longevity exercises always use `longevityGold` (#D4AF37).
 
-### Storage Keys
+### Storage Keys (MMKV)
 
 - Monday: `"monday-sustainable-v1"`
-- Wednesday: `"wednesday-sustainable-v1"` (+ `"wednesday-sustainable-option"` for cardio selection)
+- Wednesday: `"wednesday-sustainable-v1"` (includes cardio selection in state)
 - Friday: `"friday-sustainable-v1"`
 
 ## Component Props

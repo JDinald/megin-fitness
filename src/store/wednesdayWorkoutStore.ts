@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { useMemo } from "react";
 import { PersistedState, Exercise } from "../types/workout";
-import { wednesdayStorage, CardioOption } from "../services/wednesdayStorage";
+import { zustandStorage } from "../services/mmkv";
 import {
   WEDNESDAY_CARDIO_RUN,
   WEDNESDAY_CARDIO_SWIM,
@@ -9,35 +11,95 @@ import {
   ALL_WEDNESDAY_IDS,
 } from "../utils/wednesdayWorkoutData";
 
-function getDefaultState(): PersistedState {
+export type CardioOption = "run" | "swim";
+
+type WednesdayPersistedState = PersistedState & {
+  cardioOption: CardioOption;
+};
+
+function getDefaultState(): WednesdayPersistedState {
   const checked: Record<string, boolean> = {};
   const setsDone: Record<string, boolean[]> = {};
 
-  // Initialize all exercise IDs including both cardio options
   for (const id of ALL_WEDNESDAY_IDS) {
     checked[id] = false;
   }
 
-  // Initialize sets for core exercises
   for (const ex of WEDNESDAY_CORE_EXERCISES) {
     if (ex.setsCount && ex.setsCount > 0) {
       setsDone[ex.id] = Array(ex.setsCount).fill(false);
     }
   }
 
-  return { checked, setsDone };
+  return { checked, setsDone, cardioOption: "run" };
 }
 
-export function useWednesdayWorkoutStore() {
-  const [state, setState] = useState<PersistedState>(() => getDefaultState());
-  const [cardioOption, setCardioOption] = useState<CardioOption>("run");
-  const [hydrated, setHydrated] = useState(false);
+interface WednesdayWorkoutActions {
+  toggleExercise: (id: string) => void;
+  toggleSet: (ex: Exercise, setIndex: number) => void;
+  selectCardioOption: (option: CardioOption) => void;
+  resetWorkout: () => void;
+}
 
-  // Get all exercises for the current cardio option
+type WednesdayWorkoutState = WednesdayPersistedState & WednesdayWorkoutActions;
+
+const useWednesdayWorkoutStoreInternal = create<WednesdayWorkoutState>()(
+  persist(
+    (set) => ({
+      ...getDefaultState(),
+      toggleExercise: (id: string) =>
+        set((state) => ({
+          checked: { ...state.checked, [id]: !state.checked[id] },
+        })),
+      toggleSet: (ex: Exercise, setIndex: number) =>
+        set((state) => {
+          if (!ex.setsCount || ex.setsCount <= 0) return state;
+
+          const current = state.setsDone[ex.id] ?? Array(ex.setsCount).fill(false);
+          const nextSets = current.slice();
+          nextSets[setIndex] = !nextSets[setIndex];
+
+          const allDone = nextSets.every(Boolean);
+
+          return {
+            checked: { ...state.checked, [ex.id]: allDone },
+            setsDone: { ...state.setsDone, [ex.id]: nextSets },
+          };
+        }),
+      selectCardioOption: (option: CardioOption) =>
+        set({ cardioOption: option }),
+      resetWorkout: () => set(getDefaultState()),
+    }),
+    {
+      name: "wednesday-sustainable-v1",
+      storage: zustandStorage,
+      partialize: (state): WednesdayPersistedState => ({
+        checked: state.checked,
+        setsDone: state.setsDone,
+        cardioOption: state.cardioOption,
+      }),
+      merge: (persisted, current) => {
+        const def = getDefaultState();
+        const stored = persisted as WednesdayPersistedState | undefined;
+        return {
+          ...current,
+          checked: { ...def.checked, ...stored?.checked },
+          setsDone: { ...def.setsDone, ...stored?.setsDone },
+          cardioOption: stored?.cardioOption ?? def.cardioOption,
+        };
+      },
+    }
+  )
+);
+
+export function useWednesdayWorkoutStore() {
+  const state = useWednesdayWorkoutStoreInternal();
+
   const currentExercises = useMemo(() => {
-    const cardioExercise = cardioOption === "run" ? WEDNESDAY_CARDIO_RUN : WEDNESDAY_CARDIO_SWIM;
+    const cardioExercise =
+      state.cardioOption === "run" ? WEDNESDAY_CARDIO_RUN : WEDNESDAY_CARDIO_SWIM;
     return [cardioExercise, ...WEDNESDAY_CORE_EXERCISES, ...WEDNESDAY_MOBILITY_EXERCISES];
-  }, [cardioOption]);
+  }, [state.cardioOption]);
 
   const completedCount = useMemo(() => {
     return currentExercises.reduce((acc, ex) => acc + (state.checked[ex.id] ? 1 : 0), 0);
@@ -46,76 +108,16 @@ export function useWednesdayWorkoutStore() {
   const totalExercises = currentExercises.length;
   const progress = totalExercises === 0 ? 0 : completedCount / totalExercises;
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const loaded = await wednesdayStorage.load();
-        if (loaded) {
-          const def = getDefaultState();
-          setState({
-            checked: { ...def.checked, ...loaded.checked },
-            setsDone: { ...def.setsDone, ...loaded.setsDone },
-          });
-          if (loaded.cardioOption) {
-            setCardioOption(loaded.cardioOption);
-          }
-        }
-      } finally {
-        setHydrated(true);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    wednesdayStorage.save(state);
-  }, [state, hydrated]);
-
-  const toggleExercise = (id: string) => {
-    setState((prev) => ({
-      ...prev,
-      checked: { ...prev.checked, [id]: !prev.checked[id] },
-    }));
-  };
-
-  const toggleSet = (ex: Exercise, setIndex: number) => {
-    if (!ex.setsCount || ex.setsCount <= 0) return;
-
-    setState((prev) => {
-      const current = prev.setsDone[ex.id] ?? Array(ex.setsCount!).fill(false);
-      const nextSets = current.slice();
-      nextSets[setIndex] = !nextSets[setIndex];
-
-      const allDone = nextSets.every(Boolean);
-
-      return {
-        checked: { ...prev.checked, [ex.id]: allDone },
-        setsDone: { ...prev.setsDone, [ex.id]: nextSets },
-      };
-    });
-  };
-
-  const selectCardioOption = (option: CardioOption) => {
-    setCardioOption(option);
-    wednesdayStorage.saveOption(option);
-  };
-
-  const resetWorkout = async () => {
-    const fresh = getDefaultState();
-    setState(fresh);
-    await wednesdayStorage.clear();
-  };
-
   return {
-    state,
-    cardioOption,
+    state: { checked: state.checked, setsDone: state.setsDone },
+    cardioOption: state.cardioOption,
     currentExercises,
     completedCount,
     totalExercises,
     progress,
-    toggleExercise,
-    toggleSet,
-    selectCardioOption,
-    resetWorkout,
+    toggleExercise: state.toggleExercise,
+    toggleSet: state.toggleSet,
+    selectCardioOption: state.selectCardioOption,
+    resetWorkout: state.resetWorkout,
   };
 }
