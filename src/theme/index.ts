@@ -3,6 +3,7 @@ export const COLORS = {
   neonRed: "#ff1a1a",
   toxicGreen: "#39FF14",
   beastPurple: "#4a0080",
+  infectedOrange: "#FF4500",
   nightBlack: "#0a0a0a",
   concreteGray: "#1a1a1a",
   steelGray: "#2d2d2d",
