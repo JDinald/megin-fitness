@@ -13,10 +13,8 @@ A React Native (Expo) fitness tracking app for a 3-day sustainable workout progr
 
 ### To-Do
 - [ ] Expo SDK 54 (managed workflow)
-- [ ] TypeScript
 - [ ] Zustand (state)
 - [ ] MMKV (storage)
-- [x] React Navigation (tabs)
 
 ## Project Structure
 
