@@ -88,7 +88,7 @@ type Exercise = {
 | Day       | Primary Color    | Hex       |
 |-----------|------------------|-----------|
 | Monday    | infectedOrange   | #FF4500   |
-| Wednesday | (TBD)            | -         |
+| Wednesday | toxicGreen       | #39FF14   |
 | Friday    | beastPurple      | #4a0080   |
 
 Pull/longevity exercises always use `longevityGold` (#D4AF37).
@@ -96,6 +96,7 @@ Pull/longevity exercises always use `longevityGold` (#D4AF37).
 ### Storage Keys
 
 - Monday: `"monday-sustainable-v1"`
+- Wednesday: `"wednesday-sustainable-v1"` (+ `"wednesday-sustainable-option"` for cardio selection)
 - Friday: `"friday-sustainable-v1"`
 
 ## Component Props
@@ -158,7 +159,7 @@ npx expo start
 ## Current Status
 
 - [x] Monday - Power Day (Lower Emphasis)
-- [ ] Wednesday - Survival Day (TBD)
+- [x] Wednesday - Survival Day (Zone 2 + Core + Mobility)
 - [x] Friday - Beast Day (Heavy Compounds)
 - [x] Tab Navigation between days
 - [ ] Stats/History screen

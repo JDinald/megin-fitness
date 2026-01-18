@@ -1,0 +1,329 @@
+import React from "react";
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Platform } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { ExerciseCard } from "../components/ExerciseCard";
+import { ProgressBar } from "../components/ProgressBar";
+import { WorkoutHeader } from "../components/WorkoutHeader";
+import {
+  WEDNESDAY_CARDIO_RUN,
+  WEDNESDAY_CARDIO_SWIM,
+  WEDNESDAY_CORE_EXERCISES,
+  WEDNESDAY_MOBILITY_EXERCISES,
+} from "../utils/wednesdayWorkoutData";
+import { COLORS } from "../theme";
+import { useWednesdayWorkoutStore } from "../store/wednesdayWorkoutStore";
+import { CardioOption } from "../services/wednesdayStorage";
+
+export function WednesdayScreen() {
+  const {
+    state,
+    cardioOption,
+    completedCount,
+    totalExercises,
+    progress,
+    toggleExercise,
+    toggleSet,
+    selectCardioOption,
+    resetWorkout,
+  } = useWednesdayWorkoutStore();
+
+  const handleResetWorkout = () => {
+    const doReset = async () => {
+      await resetWorkout();
+    };
+
+    if (Platform.OS === "web") {
+      // @ts-ignore
+      if (confirm("Reset all progress for this workout?")) doReset();
+      return;
+    }
+
+    Alert.alert("Reset workout", "Reset all progress for this workout?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Reset", style: "destructive", onPress: doReset },
+    ]);
+  };
+
+  const currentCardioExercise = cardioOption === "run" ? WEDNESDAY_CARDIO_RUN : WEDNESDAY_CARDIO_SWIM;
+
+  return (
+    <View style={styles.root}>
+      {/* Background glow - Green theme for Survival Day */}
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <LinearGradient
+          colors={["rgba(57,255,20,0.06)", "transparent"]}
+          start={{ x: 0.2, y: 0.2 }}
+          end={{ x: 0.8, y: 0.8 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          colors={["rgba(212,175,55,0.08)", "transparent"]}
+          start={{ x: 0.8, y: 0.8 }}
+          end={{ x: 0.2, y: 0.2 }}
+          style={StyleSheet.absoluteFill}
+        />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <WorkoutHeader
+          dayLabel="Day 2 of 3"
+          dayTitle="WEDNESDAY"
+          subtitle="Survival — Zone 2 + Core + Mobility"
+          duration="~40-45 MIN"
+        />
+
+        <ProgressBar completedCount={completedCount} totalCount={totalExercises} progress={progress} />
+
+        {/* Recovery banner */}
+        <View style={styles.recoveryBanner}>
+          <Text style={styles.recoveryBannerTitle}>RECOVERY + ENGINE BUILDING</Text>
+          <Text style={styles.recoveryBannerText}>
+            Low intensity cardio builds your aerobic base. This is the day your body adapts. Zone 2 means EASY — if you can't hold a conversation, slow down.
+          </Text>
+        </View>
+
+        {/* Daily reminder */}
+        <View style={styles.reminder}>
+          <Text style={styles.reminderTitle}>DAILY NON-NEGOTIABLES (Do at home every day)</Text>
+          <View style={styles.reminderItems}>
+            <Text style={styles.reminderItem}>- Dead Hangs 2-3 min</Text>
+            <Text style={styles.reminderItem}>- Deep Squat 1-2 min</Text>
+            <Text style={styles.reminderItem}>- Thoracic Rot 1 min ea</Text>
+          </View>
+          <Text style={styles.reminderNote}>Today: mobility is included in workout. Still do dead hangs at home if not doing at gym.</Text>
+        </View>
+
+        {/* Main Work - Zone 2 Cardio */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionHeader, styles.sectionHeaderGreen]}>Main Work — Choose Your Zone 2</Text>
+
+          {/* Cardio option selector */}
+          <View style={styles.optionSelector}>
+            <Pressable
+              style={[styles.optionBtn, cardioOption === "run" && styles.optionBtnActive]}
+              onPress={() => selectCardioOption("run")}
+            >
+              <Text style={[styles.optionBtnText, cardioOption === "run" && styles.optionBtnTextActive]}>
+                Run/Bike/Row
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[styles.optionBtn, cardioOption === "swim" && styles.optionBtnActive]}
+              onPress={() => selectCardioOption("swim")}
+            >
+              <Text style={[styles.optionBtnText, cardioOption === "swim" && styles.optionBtnTextActive]}>
+                Swim
+              </Text>
+            </Pressable>
+          </View>
+
+          <ExerciseCard
+            key={currentCardioExercise.id}
+            ex={currentCardioExercise}
+            checked={!!state.checked[currentCardioExercise.id]}
+            setsDone={state.setsDone[currentCardioExercise.id]}
+            onToggle={() => toggleExercise(currentCardioExercise.id)}
+            onToggleSet={() => {}}
+            primaryColor={COLORS.toxicGreen}
+          />
+        </View>
+
+        {/* Core Circuit */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Core Circuit</Text>
+          {WEDNESDAY_CORE_EXERCISES.map((ex) => (
+            <ExerciseCard
+              key={ex.id}
+              ex={ex}
+              checked={!!state.checked[ex.id]}
+              setsDone={state.setsDone[ex.id]}
+              onToggle={() => toggleExercise(ex.id)}
+              onToggleSet={(i) => toggleSet(ex, i)}
+              primaryColor={COLORS.toxicGreen}
+            />
+          ))}
+        </View>
+
+        {/* Mobility */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionHeader, styles.sectionHeaderLongevity]}>Mobility — 5 min</Text>
+          {WEDNESDAY_MOBILITY_EXERCISES.map((ex) => (
+            <ExerciseCard
+              key={ex.id}
+              ex={ex}
+              checked={!!state.checked[ex.id]}
+              setsDone={state.setsDone[ex.id]}
+              onToggle={() => toggleExercise(ex.id)}
+              onToggleSet={(i) => toggleSet(ex, i)}
+              primaryColor={COLORS.longevityGold}
+            />
+          ))}
+        </View>
+
+        {completedCount === totalExercises ? (
+          <View style={styles.completeBanner}>
+            <Text style={styles.completeTitle}>WEDNESDAY COMPLETE</Text>
+            <Text style={styles.completeText}>Recovery optimized. Tomorrow: YT focus. Friday: BEAST day.</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.notes}>
+          <Text style={styles.notesTitle}>NOTES</Text>
+          <Text style={styles.notesText}>
+            Zone 2 means EASY. If you can't hold a conversation, slow down. This is active recovery — build your aerobic engine while letting Monday's work settle.
+          </Text>
+        </View>
+
+        <View style={styles.resetContainer}>
+          <Pressable onPress={handleResetWorkout} style={({ pressed }) => [styles.resetBtn, pressed && styles.resetBtnPressed]}>
+            <Text style={styles.resetBtnText}>RESET WORKOUT</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: COLORS.nightBlack },
+  content: { padding: 15, paddingBottom: 0 },
+
+  recoveryBanner: {
+    borderWidth: 1,
+    borderColor: COLORS.toxicGreen,
+    padding: 15,
+    marginBottom: 20,
+    backgroundColor: "rgba(57,255,20,0.08)",
+  },
+  recoveryBannerTitle: {
+    fontSize: 20,
+    letterSpacing: 3,
+    color: COLORS.toxicGreen,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  recoveryBannerText: {
+    fontSize: 12,
+    color: COLORS.muted,
+    marginTop: 8,
+    lineHeight: 18,
+    textAlign: "center",
+  },
+
+  reminder: {
+    backgroundColor: COLORS.concreteGray,
+    borderWidth: 1,
+    borderColor: COLORS.steelGray,
+    padding: 15,
+    marginBottom: 20,
+  },
+  reminderTitle: {
+    fontSize: 11,
+    letterSpacing: 2,
+    color: COLORS.longevityGold,
+    marginBottom: 10,
+    fontWeight: "700",
+  },
+  reminderItems: { flexDirection: "row", flexWrap: "wrap" },
+  reminderItem: { fontSize: 12, color: COLORS.muted, marginRight: 10, marginBottom: 6 },
+  reminderNote: { fontSize: 11, color: "#666", marginTop: 8, fontStyle: "italic" },
+
+  section: { marginBottom: 20 },
+  sectionHeader: {
+    fontSize: 11,
+    letterSpacing: 3,
+    color: "#555",
+    textTransform: "uppercase",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#333",
+    marginBottom: 10,
+  },
+  sectionHeaderGreen: {
+    color: COLORS.toxicGreen,
+    borderBottomColor: "rgba(57,255,20,0.30)",
+  },
+  sectionHeaderLongevity: {
+    color: COLORS.longevityGold,
+    borderBottomColor: "rgba(212,175,55,0.30)",
+  },
+
+  optionSelector: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 15,
+  },
+  optionBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    backgroundColor: COLORS.steelGray,
+    borderWidth: 1,
+    borderColor: "#444",
+    alignItems: "center",
+  },
+  optionBtnActive: {
+    backgroundColor: "rgba(57,255,20,0.2)",
+    borderColor: COLORS.toxicGreen,
+  },
+  optionBtnText: {
+    fontSize: 13,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: COLORS.muted,
+  },
+  optionBtnTextActive: {
+    color: COLORS.toxicGreen,
+  },
+
+  completeBanner: {
+    borderWidth: 1,
+    borderColor: COLORS.completeGreen,
+    padding: 20,
+    backgroundColor: "rgba(46,204,113,0.08)",
+    marginTop: 10,
+  },
+  completeTitle: {
+    fontSize: 28,
+    letterSpacing: 4,
+    color: COLORS.completeGreen,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+  completeText: { fontSize: 14, color: COLORS.muted, marginTop: 5, textAlign: "center" },
+
+  notes: {
+    borderWidth: 1,
+    borderColor: "rgba(212,175,55,0.30)",
+    padding: 15,
+    marginTop: 20,
+    backgroundColor: "rgba(212,175,55,0.06)",
+  },
+  notesTitle: {
+    fontSize: 16,
+    letterSpacing: 2,
+    color: COLORS.longevityGold,
+    fontWeight: "900",
+    marginBottom: 8,
+  },
+  notesText: { fontSize: 13, color: COLORS.muted, lineHeight: 19 },
+
+  resetContainer: {
+    padding: 15,
+    marginTop: 10,
+    marginBottom: 20,
+    backgroundColor: "rgba(10,10,10,0.92)",
+    borderWidth: 1,
+    borderColor: "#222",
+  },
+  resetBtn: {
+    width: "100%",
+    paddingVertical: 15,
+    backgroundColor: COLORS.steelGray,
+    borderWidth: 1,
+    borderColor: COLORS.bloodRed,
+    alignItems: "center",
+  },
+  resetBtnPressed: { backgroundColor: COLORS.bloodRed },
+  resetBtnText: { fontSize: 18, letterSpacing: 3, color: COLORS.boneWhite, fontWeight: "900" },
+});
