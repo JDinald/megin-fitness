@@ -45,14 +45,14 @@ const EXERCISES: Exercise[] = [
   { id: "ex2", section: "warmup", name: "Hip Hinges + Goblet Squat", detail: "10 hinges + 8 squats light", rightTop: "2 min", setsCount: 0 },
   { id: "ex3", section: "warmup", name: "Band Pull-Aparts", rightTop: "15 reps", setsCount: 0 },
 
-  { id: "ex4", section: "main", variant: "beast", name: "Deadlift", badge: { text: "BEAST", kind: "beast" }, detail: "THE lift. Conventional or sumo — own it.", rightTop: "4 × 5", rightBottom: "2-3 min rest", setsCount: 4 },
-  { id: "ex5", section: "main", variant: "pull", name: "Barbell Row", badge: { text: "PULL", kind: "pull" }, detail: "Heavy pulling — squeeze the back", rightTop: "4 × 8", rightBottom: "90s rest", setsCount: 4 },
-  { id: "ex6", section: "main", name: "Overhead Press", badge: { text: "BEAST", kind: "beast" }, detail: "Standing, strict form", rightTop: "3 × 6", rightBottom: "90s rest", setsCount: 3 },
-  { id: "ex7", section: "main", variant: "beast", name: "Farmer's Walks", badge: { text: "BEAST", kind: "beast" }, detail: "Heavy as possible, good posture", rightTop: "3 × 30m", rightBottom: "90s rest", setsCount: 3 },
-  { id: "ex8", section: "main", name: "Dips / Close-Grip Bench", detail: "Triceps finisher", rightTop: "3 × 8", rightBottom: "90s rest", setsCount: 3 },
-  { id: "ex9", section: "main", variant: "pull", name: "Hanging Leg Raises", badge: { text: "CORE", kind: "core" }, detail: "Or lying leg raises if needed", rightTop: "3 × 10", rightBottom: "60s rest", setsCount: 3 },
+  { id: "ex4", section: "main", variant: "beast", name: "Deadlift", badge: { text: "BEAST", kind: "beast" }, detail: "THE lift. Conventional or sumo - own it.", rightTop: "4 x 5", rightBottom: "2-3 min rest", setsCount: 4 },
+  { id: "ex5", section: "main", variant: "pull", name: "Barbell Row", badge: { text: "PULL", kind: "pull" }, detail: "Heavy pulling - squeeze the back", rightTop: "4 x 8", rightBottom: "90s rest", setsCount: 4 },
+  { id: "ex6", section: "main", name: "Overhead Press", badge: { text: "BEAST", kind: "beast" }, detail: "Standing, strict form", rightTop: "3 x 6", rightBottom: "90s rest", setsCount: 3 },
+  { id: "ex7", section: "main", variant: "beast", name: "Farmer's Walks", badge: { text: "BEAST", kind: "beast" }, detail: "Heavy as possible, good posture", rightTop: "3 x 30m", rightBottom: "90s rest", setsCount: 3 },
+  { id: "ex8", section: "main", name: "Dips / Close-Grip Bench", detail: "Triceps finisher", rightTop: "3 x 8", rightBottom: "90s rest", setsCount: 3 },
+  { id: "ex9", section: "main", variant: "pull", name: "Hanging Leg Raises", badge: { text: "CORE", kind: "core" }, detail: "Or lying leg raises if needed", rightTop: "3 x 10", rightBottom: "60s rest", setsCount: 3 },
 
-  { id: "ex10", section: "finisher", name: "Burpees OR Battle Ropes", detail: "Maximum effort. Leave nothing.", rightTop: "3 × 30 sec", rightBottom: "30s rest", setsCount: 3 },
+  { id: "ex10", section: "finisher", name: "Burpees OR Battle Ropes", detail: "Maximum effort. Leave nothing.", rightTop: "3 x 30 sec", rightBottom: "30s rest", setsCount: 3 },
   { id: "ex11", section: "finisher", name: "Cooldown Walk + Breathing", detail: "2 min nasal breathing", rightTop: "2 min", setsCount: 0 },
 ];
 
@@ -177,10 +177,10 @@ function FridayScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.programTag}>BEAST MODE SUSTAINABLE — 3 DAY PROGRAM</Text>
+          <Text style={styles.programTag}>BEAST MODE SUSTAINABLE - 3 DAY PROGRAM</Text>
           <Text style={styles.dayLabel}>Day 3 of 3</Text>
           <Text style={styles.h1}>FRIDAY</Text>
-          <Text style={styles.subtitle}>Beast — Heavy Compounds + Upper Pull</Text>
+          <Text style={styles.subtitle}>Beast - Heavy Compounds + Upper Pull</Text>
           <View style={styles.phaseTag}>
             <Text style={styles.phaseTagText}>~55-60 MIN</Text>
           </View>
@@ -206,7 +206,7 @@ function FridayScreen() {
 
         {/* Beast banner */}
         <View style={styles.beastBanner}>
-          <Text style={styles.beastBannerTitle}>👹 UNLEASH THE BEAST 👹</Text>
+          <Text style={styles.beastBannerTitle}>&gt;&gt; UNLEASH THE BEAST &lt;&lt;</Text>
           <Text style={styles.beastBannerText}>
             Heavy compounds, strongman work, controlled aggression. This is the day the transformation happens. Breathe. Brace. Lift.
           </Text>
@@ -214,18 +214,18 @@ function FridayScreen() {
 
         {/* Daily reminder */}
         <View style={styles.reminder}>
-          <Text style={styles.reminderTitle}>⚡ DAILY NON-NEGOTIABLES (Do at home every day)</Text>
+          <Text style={styles.reminderTitle}>DAILY NON-NEGOTIABLES (Do at home every day)</Text>
           <View style={styles.reminderItems}>
-            <Text style={styles.reminderItem}>🔗 Dead Hangs 2-3min</Text>
-            <Text style={styles.reminderItem}>🧘 Deep Squat 1-2min</Text>
-            <Text style={styles.reminderItem}>🔄 Thoracic Rot 1min ea</Text>
+            <Text style={styles.reminderItem}>- Dead Hangs 2-3 min</Text>
+            <Text style={styles.reminderItem}>- Deep Squat 1-2 min</Text>
+            <Text style={styles.reminderItem}>- Thoracic Rot 1 min ea</Text>
           </View>
           <Text style={styles.reminderNote}>Dead hangs after deadlifts = spinal decompression. Critical today.</Text>
         </View>
 
         {/* Sections */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Warm-up — 8 min</Text>
+          <Text style={styles.sectionHeader}>Warm-up - 8 min</Text>
           {EXERCISES.filter((x) => x.section === "warmup").map((ex) => (
             <ExerciseCard
               key={ex.id}
@@ -239,7 +239,7 @@ function FridayScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionHeader, styles.sectionHeaderBeast]}>Main Work — Beast Mode</Text>
+          <Text style={[styles.sectionHeader, styles.sectionHeaderBeast]}>Main Work - Beast Mode</Text>
           {EXERCISES.filter((x) => x.section === "main").map((ex) => (
             <ExerciseCard
               key={ex.id}
@@ -253,7 +253,7 @@ function FridayScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Finisher — Empty The Tank</Text>
+          <Text style={styles.sectionHeader}>Finisher - Empty The Tank</Text>
           {EXERCISES.filter((x) => x.section === "finisher").map((ex) => (
             <ExerciseCard
               key={ex.id}
@@ -266,29 +266,27 @@ function FridayScreen() {
           ))}
         </View>
 
-        {completedCount === totalExercises && (
+        {completedCount === totalExercises ? (
           <View style={styles.completeBanner}>
-            <Text style={styles.completeTitle}>👹 WEEK COMPLETE 👹</Text>
+            <Text style={styles.completeTitle}>&gt;&gt; WEEK COMPLETE &lt;&lt;</Text>
             <Text style={styles.completeText}>3/3 training days done. Weekend: Drawing Saturday, rest Sunday. You earned it.</Text>
           </View>
-        )}
+        ) : null}
 
-        <View style={styles.notes}>
-          <Text style={styles.notesTitle}>📝 NOTES</Text>
-          <Text style={styles.notesText}>
-            Beast day = controlled aggression. Heavy but not maximal in Phase 1. Dead hangs after deadlifts are critical — decompress that spine.
-            Pull exercises (rows, leg raises) maintain the 2:1 ratio. Weekend is yours — drawing Saturday, full rest Sunday. See you next Monday.
-          </Text>
+        <View style={styles.resetContainer}>
+          <Pressable onPress={resetWorkout} style={({ pressed }) => [styles.resetBtn, pressed && styles.resetBtnPressed]}>
+            <Text style={styles.resetBtnText}>RESET WORKOUT</Text>
+          </Pressable>
         </View>
 
-        <View style={{ height: 110 }} />
+        <View style={styles.notes}>
+          <Text style={styles.notesTitle}>NOTES</Text>
+          <Text style={styles.notesText}>
+            Beast day = controlled aggression. Heavy but not maximal in Phase 1. Dead hangs after deadlifts are critical - decompress that spine.
+            Pull exercises (rows, leg raises) maintain the 2:1 ratio. Weekend is yours - drawing Saturday, full rest Sunday. See you next Monday.
+          </Text>
+        </View>
       </ScrollView>
-
-      <View style={styles.resetContainer}>
-        <Pressable onPress={resetWorkout} style={({ pressed }) => [styles.resetBtn, pressed && styles.resetBtnPressed]}>
-          <Text style={styles.resetBtnText}>RESET WORKOUT</Text>
-        </Pressable>
-      </View>
     </View>
   );
 }
@@ -373,7 +371,7 @@ function ExerciseCard({
               checked && { backgroundColor: COLORS.completeGreen, borderColor: COLORS.completeGreen },
             ]}
           >
-            <Text style={[styles.checkboxTick, checked && { color: COLORS.nightBlack }]}>✓</Text>
+            <Text style={[styles.checkboxTick, checked && { color: COLORS.nightBlack }]}> </Text>
           </View>
         </View>
 
@@ -384,7 +382,7 @@ function ExerciseCard({
               {ex.name}
             </Text>
 
-            {!!ex.badge && (
+            {!!ex.badge ? (
               <View
                 style={[
                   styles.badge,
@@ -402,21 +400,21 @@ function ExerciseCard({
                   {ex.badge.text}
                 </Text>
               </View>
-            )}
+            ) : null}
           </View>
 
-          {!!ex.detail && <Text style={styles.cardDetail}>{ex.detail}</Text>}
+          {!!ex.detail ? <Text style={styles.cardDetail}>{ex.detail}</Text> : null}
         </View>
 
         {/* Right */}
         <View style={styles.cardRight}>
           <Text style={styles.rightTop}>{ex.rightTop}</Text>
-          {!!ex.rightBottom && <Text style={styles.rightBottom}>{ex.rightBottom}</Text>}
+          {!!ex.rightBottom ? <Text style={styles.rightBottom}>{ex.rightBottom}</Text> : null}
         </View>
       </Pressable>
 
       {/* Set tracker */}
-      {ex.setsCount && ex.setsCount > 0 && (
+      {ex.setsCount && ex.setsCount > 0 ? (
         <View style={styles.setRow}>
           {Array.from({ length: ex.setsCount }).map((_, i) => {
             const done = !!setsDone?.[i];
@@ -435,7 +433,7 @@ function ExerciseCard({
             );
           })}
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -541,14 +539,12 @@ const styles = StyleSheet.create({
   notesText: { fontSize: 13, color: COLORS.muted, lineHeight: 19 },
 
   resetContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
     padding: 15,
+    marginTop: 10,
+    marginBottom: 20,
     backgroundColor: "rgba(10,10,10,0.92)",
-    borderTopWidth: 1,
-    borderTopColor: "#222",
+    borderWidth: 1,
+    borderColor: "#222",
   },
   resetBtn: { width: "100%", paddingVertical: 15, backgroundColor: COLORS.steelGray, borderWidth: 1, borderColor: COLORS.bloodRed, alignItems: "center" },
   resetBtnPressed: { backgroundColor: COLORS.bloodRed },
