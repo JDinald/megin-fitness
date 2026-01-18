@@ -160,5 +160,5 @@ npx expo start
 - [x] Monday - Power Day (Lower Emphasis)
 - [ ] Wednesday - Survival Day (TBD)
 - [x] Friday - Beast Day (Heavy Compounds)
-- [ ] Tab Navigation between days
+- [x] Tab Navigation between days
 - [ ] Stats/History screen

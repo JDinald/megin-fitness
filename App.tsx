@@ -1,16 +1,30 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
 import { TabNavigator } from "./src/navigation/TabNavigator";
 import { COLORS } from "./src/theme";
 
 export default function App() {
   return (
-    <View style={styles.safe}>
+    <NavigationContainer
+      theme={{
+        dark: true,
+        colors: {
+          primary: COLORS.boneWhite,
+          background: COLORS.nightBlack,
+          card: COLORS.concreteGray,
+          text: COLORS.boneWhite,
+          border: COLORS.steelGray,
+          notification: COLORS.infectedOrange,
+        },
+        fonts: {
+          regular: { fontFamily: "System", fontWeight: "400" },
+          medium: { fontFamily: "System", fontWeight: "500" },
+          bold: { fontFamily: "System", fontWeight: "700" },
+          heavy: { fontFamily: "System", fontWeight: "900" },
+        },
+      }}
+    >
       <TabNavigator />
-    </View>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.nightBlack },
-});
