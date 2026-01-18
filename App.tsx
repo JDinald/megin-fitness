@@ -1,5 +1,6 @@
 import React from "react";
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TabNavigator } from "./src/navigation/TabNavigator";
 import { COLORS } from "./src/theme";
 
@@ -18,8 +19,10 @@ const theme = {
 
 export default function App() {
   return (
-    <NavigationContainer theme={theme}>
-      <TabNavigator />
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer theme={theme}>
+        <TabNavigator />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

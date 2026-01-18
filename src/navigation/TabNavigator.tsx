@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MondayScreen } from "../screens/MondayScreen";
 import { WorkoutScreen } from "../screens/WorkoutScreen";
 import { COLORS } from "../theme";
@@ -19,11 +20,20 @@ function WednesdayScreen() {
 const Tab = createBottomTabNavigator();
 
 export function TabNavigator() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: {
+          backgroundColor: COLORS.concreteGray,
+          borderTopWidth: 1,
+          borderTopColor: COLORS.steelGray,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom + 5,
+          paddingTop: 8,
+        },
         tabBarActiveTintColor: COLORS.boneWhite,
         tabBarInactiveTintColor: COLORS.muted,
         tabBarLabelStyle: styles.tabBarLabel,
@@ -70,14 +80,6 @@ export function TabNavigator() {
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: COLORS.concreteGray,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.steelGray,
-    height: 70,
-    paddingBottom: 10,
-    paddingTop: 10,
-  },
   tabBarLabel: {
     fontSize: 11,
     letterSpacing: 2,
