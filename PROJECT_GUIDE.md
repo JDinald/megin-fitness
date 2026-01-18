@@ -16,7 +16,7 @@ A React Native (Expo) fitness tracking app for a 3-day sustainable workout progr
 - [ ] TypeScript
 - [ ] Zustand (state)
 - [ ] MMKV (storage)
-- [ ] React Navigation (tabs)
+- [x] React Navigation (tabs)
 
 ## Project Structure
 
