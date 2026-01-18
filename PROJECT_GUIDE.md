@@ -4,11 +4,17 @@ A React Native (Expo) fitness tracking app for a 3-day sustainable workout progr
 
 ## Tech Stack
 
+### Current
 - **Framework:** React Native with Expo SDK 54
 - **Language:** TypeScript
 - **State Management:** Custom hooks with React useState/useEffect
 - **Storage:** @react-native-async-storage/async-storage
 - **Styling:** React Native StyleSheet + expo-linear-gradient
+
+### To-Do
+- [ ] Expo SDK 54 (managed workflow)
+- [ ] Zustand (state)
+- [ ] MMKV (storage)
 
 ## Project Structure
 
