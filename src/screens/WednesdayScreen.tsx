@@ -25,6 +25,7 @@ export function WednesdayScreen() {
     setWeight,
     selectCardioOption,
     resetWorkout,
+    completeWorkout,
   } = useWednesdayWorkoutStore();
 
   const handleResetWorkout = () => {
@@ -42,6 +43,27 @@ export function WednesdayScreen() {
       { text: "Cancel", style: "cancel" },
       { text: "Reset", style: "destructive", onPress: doReset },
     ]);
+  };
+
+  const handleCompleteWorkout = () => {
+    const doComplete = () => {
+      completeWorkout();
+    };
+
+    if (Platform.OS === "web") {
+      // @ts-ignore
+      if (confirm("Complete workout and save to history? This will reset the current progress.")) doComplete();
+      return;
+    }
+
+    Alert.alert(
+      "Complete Workout",
+      "Save this workout to history? Your progress will be recorded and the workout will reset.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Complete", style: "default", onPress: doComplete },
+      ]
+    );
   };
 
   const currentCardioExercise = cardioOption === "run" ? WEDNESDAY_CARDIO_RUN : WEDNESDAY_CARDIO_SWIM;
@@ -173,6 +195,16 @@ export function WednesdayScreen() {
           </View>
         ) : null}
 
+        {completedCount > 0 && (
+          <Pressable
+            onPress={handleCompleteWorkout}
+            style={({ pressed }) => [styles.completeBtn, pressed && styles.completeBtnPressed]}
+          >
+            <Text style={styles.completeBtnText}>COMPLETE WORKOUT</Text>
+            <Text style={styles.completeBtnSubtext}>Save to history & reset</Text>
+          </Pressable>
+        )}
+
         <View style={styles.notes}>
           <Text style={styles.notesTitle}>NOTES</Text>
           <Text style={styles.notesText}>
@@ -297,6 +329,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   completeText: { fontSize: 14, color: COLORS.muted, marginTop: 5, textAlign: "center" },
+
+  completeBtn: {
+    marginTop: 15,
+    paddingVertical: 18,
+    backgroundColor: COLORS.concreteGray,
+    borderWidth: 2,
+    borderColor: COLORS.completeGreen,
+    alignItems: "center",
+  },
+  completeBtnPressed: { backgroundColor: "rgba(46,204,113,0.15)" },
+  completeBtnText: { fontSize: 18, letterSpacing: 3, color: COLORS.completeGreen, fontWeight: "900" },
+  completeBtnSubtext: { fontSize: 11, color: COLORS.muted, marginTop: 4, letterSpacing: 1 },
 
   notes: {
     borderWidth: 1,

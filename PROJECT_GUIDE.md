@@ -24,10 +24,11 @@ src/
 │   ├── MondayScreen.tsx       # Day 1: Power (orange theme)
 │   ├── WednesdayScreen.tsx    # Day 2: Survival (green theme)
 │   ├── FridayScreen.tsx       # Day 3: Beast (purple theme)
-│   └── StatsScreen.tsx        # Training statistics & volume tracking
+│   ├── StatsScreen.tsx        # Training statistics & volume tracking
+│   └── HistoryScreen.tsx      # Workout history log
 │
 ├── store/               # State management (Zustand)
-│   └── workoutStore.ts      # Unified store keyed by day + stats hooks
+│   └── workoutStore.ts      # Unified store keyed by day + stats + history hooks
 │
 ├── services/            # External integrations
 │   └── mmkv.ts             # MMKV storage for Zustand persist
@@ -38,13 +39,13 @@ src/
 │   └── fridayWorkoutData.ts      # Friday exercise definitions
 │
 ├── types/               # TypeScript definitions
-│   └── workout.ts          # Exercise, PersistedState, WorkoutStats types
+│   └── workout.ts          # Exercise, PersistedState, WorkoutStats, WorkoutHistoryEntry types
 │
 ├── theme/               # Design system
 │   └── index.ts            # Color palette (COLORS)
 │
 └── navigation/          # Navigation setup
-    └── TabNavigator.tsx    # Mon/Wed/Fri + Stats tabs
+    └── TabNavigator.tsx    # Mon/Wed/Fri + Stats + History tabs
 ```
 
 ## Key Patterns
@@ -91,6 +92,7 @@ type Exercise = {
 | Wednesday | toxicGreen       | #39FF14   |
 | Friday    | beastPurple      | #4a0080   |
 | Stats     | longevityGold    | #D4AF37   |
+| History   | completeGreen    | #2ecc71   |
 
 Pull/longevity exercises always use `longevityGold` (#D4AF37).
 
@@ -105,7 +107,8 @@ State structure:
     monday: { checked, setsDone, weights },
     wednesday: { checked, setsDone, weights, cardioOption },
     friday: { checked, setsDone, weights }
-  }
+  },
+  history: WorkoutHistoryEntry[]  // Completed workout log
 }
 ```
 
@@ -221,6 +224,61 @@ type ExerciseStats = {
 };
 ```
 
+## Workout History
+
+The app tracks completed workouts in a history log. When you complete a workout, it gets saved with all stats and exercise data.
+
+### Completing a Workout
+
+Each day screen has a "Complete Workout" button that appears when at least one exercise is started. Completing a workout:
+1. Saves the workout data to history
+2. Resets the day's progress to start fresh
+
+### Using History in Code
+
+```typescript
+import { useWorkoutHistory } from "../store/workoutStore";
+
+function MyComponent() {
+  const { history, deleteEntry } = useWorkoutHistory();
+
+  // history: WorkoutHistoryEntry[] - array of completed workouts
+  // deleteEntry: (id: string) => void - remove an entry
+}
+```
+
+### History Types
+
+```typescript
+type WorkoutHistoryEntry = {
+  id: string;                    // Unique ID (e.g., "monday-1704067200000")
+  dayId: "monday" | "wednesday" | "friday";
+  completedAt: string;           // ISO date string
+  duration?: number;             // Duration in minutes (optional)
+  stats: {
+    totalVolume: number;
+    totalSets: number;
+    totalReps: number;
+    averageWeightPerRep: number;
+  };
+  exerciseData: {
+    exerciseId: string;
+    exerciseName: string;
+    setsCompleted: number;
+    totalReps: number;
+    weights: number[];
+    totalVolume: number;
+  }[];
+};
+```
+
+### History Screen Features
+
+- **All Time Totals**: Total workouts, volume, and sets across all history
+- **Expandable Entries**: Tap to expand and see full workout details
+- **Delete Entries**: Remove individual history entries
+- **Per-Exercise Breakdown**: See weights and reps for each exercise
+
 ## Available Colors (COLORS)
 
 ```typescript
@@ -253,5 +311,5 @@ npx expo start
 - [x] Tab Navigation between days
 - [x] Weight tracking per set
 - [x] Stats screen with volume tracking
-- [ ] Historical data / workout history
+- [x] Historical data / workout history
 - [ ] Personal records (PRs) tracking

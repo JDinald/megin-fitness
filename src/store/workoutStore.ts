@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useMemo } from "react";
-import { PersistedState, Exercise, WorkoutStats, ExerciseStats } from "../types/workout";
+import { PersistedState, Exercise, WorkoutStats, ExerciseStats, WorkoutHistoryEntry } from "../types/workout";
 import { zustandStorage } from "../services/mmkv";
 import { MONDAY_EXERCISES } from "../utils/mondayWorkoutData";
 import {
@@ -22,11 +22,14 @@ interface DayState extends PersistedState {
 
 interface WorkoutStoreState {
   days: Record<DayId, DayState>;
+  history: WorkoutHistoryEntry[];
   toggleExercise: (day: DayId, id: string) => void;
   toggleSet: (day: DayId, ex: Exercise, setIndex: number) => void;
   setWeight: (day: DayId, exerciseId: string, setIndex: number, weight: number) => void;
   setCardioOption: (option: CardioOption) => void;
   resetDay: (day: DayId) => void;
+  saveWorkoutToHistory: (day: DayId) => void;
+  deleteHistoryEntry: (entryId: string) => void;
 }
 
 function getDefaultDayState(day: DayId): DayState {
@@ -77,12 +80,35 @@ function getDefaultState(): Record<DayId, DayState> {
   };
 }
 
-type PersistedWorkoutState = { days: Record<DayId, DayState> };
+type PersistedWorkoutState = { days: Record<DayId, DayState>; history: WorkoutHistoryEntry[] };
+
+function getExercisesForDay(day: DayId): Exercise[] {
+  switch (day) {
+    case "monday":
+      return MONDAY_EXERCISES;
+    case "wednesday":
+      return WEDNESDAY_CORE_EXERCISES;
+    case "friday":
+      return FRIDAY_EXERCISES;
+  }
+}
+
+function getDayLabel(day: DayId): string {
+  switch (day) {
+    case "monday":
+      return "Monday - Power";
+    case "wednesday":
+      return "Wednesday - Core";
+    case "friday":
+      return "Friday - Beast";
+  }
+}
 
 const useWorkoutStoreInternal = create<WorkoutStoreState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       days: getDefaultState(),
+      history: [],
 
       toggleExercise: (day, id) =>
         set((state) => ({
@@ -150,16 +176,58 @@ const useWorkoutStoreInternal = create<WorkoutStoreState>()(
         set((state) => ({
           days: { ...state.days, [day]: getDefaultDayState(day) },
         })),
+
+      saveWorkoutToHistory: (day) => {
+        const state = get();
+        const dayState = state.days[day];
+        const exercises = getExercisesForDay(day);
+        const stats = calculateWorkoutStats(exercises, dayState.setsDone, dayState.weights);
+
+        if (stats.totalSets === 0) return;
+
+        const exerciseData = stats.exerciseStats.map((ex) => ({
+          exerciseId: ex.exerciseId,
+          exerciseName: ex.exerciseName,
+          setsCompleted: ex.setsCompleted,
+          totalReps: ex.totalReps,
+          weights: ex.weights,
+          totalVolume: ex.totalVolume,
+        }));
+
+        const entry: WorkoutHistoryEntry = {
+          id: `${day}-${Date.now()}`,
+          dayId: day,
+          completedAt: new Date().toISOString(),
+          stats: {
+            totalVolume: stats.totalVolume,
+            totalSets: stats.totalSets,
+            totalReps: stats.totalReps,
+            averageWeightPerRep: stats.averageWeightPerRep,
+          },
+          exerciseData,
+        };
+
+        set((state) => ({
+          history: [entry, ...state.history],
+          days: { ...state.days, [day]: getDefaultDayState(day) },
+        }));
+      },
+
+      deleteHistoryEntry: (entryId) =>
+        set((state) => ({
+          history: state.history.filter((entry) => entry.id !== entryId),
+        })),
     }),
     {
       name: "workouts-v1",
       storage: zustandStorage,
-      partialize: (state): PersistedWorkoutState => ({ days: state.days }),
+      partialize: (state): PersistedWorkoutState => ({ days: state.days, history: state.history }),
       merge: (persisted, current) => {
         const def = getDefaultState();
         const stored = persisted as PersistedWorkoutState | undefined;
         return {
           ...current,
+          history: stored?.history ?? [],
           days: {
             monday: {
               checked: { ...def.monday.checked, ...stored?.days?.monday?.checked },
@@ -205,6 +273,7 @@ export function useMondayWorkoutStore() {
     setWeight: (exerciseId: string, setIndex: number, weight: number) =>
       store.setWeight("monday", exerciseId, setIndex, weight),
     resetWorkout: () => store.resetDay("monday"),
+    completeWorkout: () => store.saveWorkoutToHistory("monday"),
   };
 }
 
@@ -238,6 +307,7 @@ export function useWednesdayWorkoutStore() {
       store.setWeight("wednesday", exerciseId, setIndex, weight),
     selectCardioOption: store.setCardioOption,
     resetWorkout: () => store.resetDay("wednesday"),
+    completeWorkout: () => store.saveWorkoutToHistory("wednesday"),
   };
 }
 
@@ -260,6 +330,7 @@ export function useFridayWorkoutStore() {
     setWeight: (exerciseId: string, setIndex: number, weight: number) =>
       store.setWeight("friday", exerciseId, setIndex, weight),
     resetWorkout: () => store.resetDay("friday"),
+    completeWorkout: () => store.saveWorkoutToHistory("friday"),
   };
 }
 
@@ -369,5 +440,15 @@ export function useWorkoutStats() {
     wednesday: wednesdayStats,
     friday: fridayStats,
     total: totalStats,
+  };
+}
+
+// Hook to access workout history
+export function useWorkoutHistory() {
+  const store = useWorkoutStoreInternal();
+
+  return {
+    history: store.history,
+    deleteEntry: store.deleteHistoryEntry,
   };
 }

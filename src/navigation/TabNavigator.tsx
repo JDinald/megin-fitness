@@ -6,6 +6,7 @@ import { MondayScreen } from "../screens/MondayScreen";
 import { WednesdayScreen } from "../screens/WednesdayScreen";
 import { FridayScreen } from "../screens/FridayScreen";
 import { StatsScreen } from "../screens/StatsScreen";
+import { HistoryScreen } from "../screens/HistoryScreen";
 import { COLORS } from "../theme";
 
 const Tab = createBottomTabNavigator();
@@ -78,6 +79,18 @@ export function TabNavigator() {
           ),
         }}
       />
+      <Tab.Screen
+        name="History"
+        component={HistoryScreen}
+        options={{
+          tabBarLabel: "LOG",
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.dayIndicator, focused && styles.dayIndicatorHistoryActive]}>
+              <Text style={[styles.historyIcon, focused && styles.historyIconActive]}>H</Text>
+            </View>
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -130,5 +143,17 @@ const styles = StyleSheet.create({
   },
   statsIconActive: {
     color: COLORS.longevityGold,
+  },
+  dayIndicatorHistoryActive: {
+    borderColor: COLORS.completeGreen,
+    backgroundColor: "rgba(46,204,113,0.15)",
+  },
+  historyIcon: {
+    fontSize: 14,
+    fontWeight: "900",
+    color: COLORS.muted,
+  },
+  historyIconActive: {
+    color: COLORS.completeGreen,
   },
 });
