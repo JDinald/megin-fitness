@@ -6,6 +6,7 @@ import { MondayScreen } from "../screens/MondayScreen";
 import { WednesdayScreen } from "../screens/WednesdayScreen";
 import { FridayScreen } from "../screens/FridayScreen";
 import { HistoryScreen } from "../screens/HistoryScreen";
+import { PRScreen } from "../screens/PRScreen";
 import { COLORS } from "../theme";
 
 const Tab = createBottomTabNavigator();
@@ -78,6 +79,18 @@ export function TabNavigator() {
           ),
         }}
       />
+      <Tab.Screen
+        name="PRs"
+        component={PRScreen}
+        options={{
+          tabBarLabel: "PRs",
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.dayIndicator, focused && styles.dayIndicatorPRActive]}>
+              <Text style={[styles.prIcon, focused && styles.prIconActive]}>PR</Text>
+            </View>
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -130,5 +143,17 @@ const styles = StyleSheet.create({
   },
   historyIconActive: {
     color: COLORS.completeGreen,
+  },
+  dayIndicatorPRActive: {
+    borderColor: COLORS.longevityGold,
+    backgroundColor: "rgba(212,175,55,0.15)",
+  },
+  prIcon: {
+    fontSize: 10,
+    fontWeight: "900",
+    color: COLORS.muted,
+  },
+  prIconActive: {
+    color: COLORS.longevityGold,
   },
 });

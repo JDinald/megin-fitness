@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useMemo } from "react";
-import { PersistedState, Exercise, WorkoutStats, ExerciseStats, WorkoutHistoryEntry } from "../types/workout";
+import { PersistedState, Exercise, WorkoutStats, ExerciseStats, WorkoutHistoryEntry, PersonalRecords, ExercisePR } from "../types/workout";
 import { zustandStorage } from "../services/mmkv";
 import { MONDAY_EXERCISES } from "../utils/mondayWorkoutData";
 import {
@@ -20,9 +20,19 @@ interface DayState extends PersistedState {
   cardioOption?: CardioOption;
 }
 
+function getDefaultPRs(): PersonalRecords {
+  return {
+    exercises: {},
+    bestWorkoutVolume: 0,
+    bestWorkoutVolumeDate: null,
+    bestWorkoutVolumeDay: null,
+  };
+}
+
 interface WorkoutStoreState {
   days: Record<DayId, DayState>;
   history: WorkoutHistoryEntry[];
+  personalRecords: PersonalRecords;
   toggleExercise: (day: DayId, id: string) => void;
   toggleSet: (day: DayId, ex: Exercise, setIndex: number) => void;
   setWeight: (day: DayId, exerciseId: string, setIndex: number, weight: number) => void;
@@ -80,7 +90,7 @@ function getDefaultState(): Record<DayId, DayState> {
   };
 }
 
-type PersistedWorkoutState = { days: Record<DayId, DayState>; history: WorkoutHistoryEntry[] };
+type PersistedWorkoutState = { days: Record<DayId, DayState>; history: WorkoutHistoryEntry[]; personalRecords: PersonalRecords };
 
 function getExercisesForDay(day: DayId): Exercise[] {
   switch (day) {
@@ -109,6 +119,7 @@ const useWorkoutStoreInternal = create<WorkoutStoreState>()(
     (set, get) => ({
       days: getDefaultState(),
       history: [],
+      personalRecords: getDefaultPRs(),
 
       toggleExercise: (day, id) =>
         set((state) => ({
@@ -185,6 +196,8 @@ const useWorkoutStoreInternal = create<WorkoutStoreState>()(
 
         if (stats.totalSets === 0) return;
 
+        const completedAt = new Date().toISOString();
+
         const exerciseData = stats.exerciseStats.map((ex) => ({
           exerciseId: ex.exerciseId,
           exerciseName: ex.exerciseName,
@@ -197,7 +210,7 @@ const useWorkoutStoreInternal = create<WorkoutStoreState>()(
         const entry: WorkoutHistoryEntry = {
           id: `${day}-${Date.now()}`,
           dayId: day,
-          completedAt: new Date().toISOString(),
+          completedAt,
           stats: {
             totalVolume: stats.totalVolume,
             totalSets: stats.totalSets,
@@ -207,9 +220,63 @@ const useWorkoutStoreInternal = create<WorkoutStoreState>()(
           exerciseData,
         };
 
+        // Calculate updated PRs
+        const currentPRs = state.personalRecords;
+        const newExercisePRs = { ...currentPRs.exercises };
+
+        for (const exData of exerciseData) {
+          const maxWeight = exData.weights.length > 0 ? Math.max(...exData.weights) : 0;
+          const existing = newExercisePRs[exData.exerciseId];
+
+          if (!existing) {
+            // First time recording this exercise
+            newExercisePRs[exData.exerciseId] = {
+              exerciseId: exData.exerciseId,
+              exerciseName: exData.exerciseName,
+              maxWeight,
+              maxWeightDate: completedAt,
+              maxVolume: exData.totalVolume,
+              maxVolumeDate: completedAt,
+            };
+          } else {
+            // Update if new PR
+            if (maxWeight > existing.maxWeight) {
+              newExercisePRs[exData.exerciseId] = {
+                ...existing,
+                maxWeight,
+                maxWeightDate: completedAt,
+              };
+            }
+            if (exData.totalVolume > existing.maxVolume) {
+              newExercisePRs[exData.exerciseId] = {
+                ...newExercisePRs[exData.exerciseId],
+                maxVolume: exData.totalVolume,
+                maxVolumeDate: completedAt,
+              };
+            }
+          }
+        }
+
+        // Check for best workout volume
+        let newBestVolume = currentPRs.bestWorkoutVolume;
+        let newBestVolumeDate = currentPRs.bestWorkoutVolumeDate;
+        let newBestVolumeDay = currentPRs.bestWorkoutVolumeDay;
+
+        if (stats.totalVolume > currentPRs.bestWorkoutVolume) {
+          newBestVolume = stats.totalVolume;
+          newBestVolumeDate = completedAt;
+          newBestVolumeDay = day;
+        }
+
         set((state) => ({
           history: [entry, ...state.history],
           days: { ...state.days, [day]: getDefaultDayState(day) },
+          personalRecords: {
+            exercises: newExercisePRs,
+            bestWorkoutVolume: newBestVolume,
+            bestWorkoutVolumeDate: newBestVolumeDate,
+            bestWorkoutVolumeDay: newBestVolumeDay,
+          },
         }));
       },
 
@@ -221,13 +288,14 @@ const useWorkoutStoreInternal = create<WorkoutStoreState>()(
     {
       name: "workouts-v1",
       storage: zustandStorage,
-      partialize: (state): PersistedWorkoutState => ({ days: state.days, history: state.history }),
+      partialize: (state): PersistedWorkoutState => ({ days: state.days, history: state.history, personalRecords: state.personalRecords }),
       merge: (persisted, current) => {
         const def = getDefaultState();
         const stored = persisted as PersistedWorkoutState | undefined;
         return {
           ...current,
           history: stored?.history ?? [],
+          personalRecords: stored?.personalRecords ?? getDefaultPRs(),
           days: {
             monday: {
               checked: { ...def.monday.checked, ...stored?.days?.monday?.checked },
@@ -403,5 +471,15 @@ export function useWorkoutHistory() {
   return {
     history: store.history,
     deleteEntry: store.deleteHistoryEntry,
+  };
+}
+
+// Hook to access personal records
+export function usePersonalRecords() {
+  const store = useWorkoutStoreInternal();
+
+  return {
+    personalRecords: store.personalRecords,
+    exercisePRs: Object.values(store.personalRecords.exercises),
   };
 }

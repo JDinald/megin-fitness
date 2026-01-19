@@ -55,3 +55,19 @@ export type WorkoutHistoryEntry = {
     totalVolume: number;
   }[];
 };
+
+export type ExercisePR = {
+  exerciseId: string;
+  exerciseName: string;
+  maxWeight: number; // Heaviest single-set weight
+  maxWeightDate: string; // ISO date string
+  maxVolume: number; // Best total volume in a single workout
+  maxVolumeDate: string; // ISO date string
+};
+
+export type PersonalRecords = {
+  exercises: Record<string, ExercisePR>; // keyed by exerciseId
+  bestWorkoutVolume: number; // Best single-workout total volume
+  bestWorkoutVolumeDate: string | null; // ISO date string
+  bestWorkoutVolumeDay: "monday" | "wednesday" | "friday" | null;
+};

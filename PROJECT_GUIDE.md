@@ -24,7 +24,8 @@ src/
 │   ├── MondayScreen.tsx       # Day 1: Power (orange theme)
 │   ├── WednesdayScreen.tsx    # Day 2: Survival (green theme)
 │   ├── FridayScreen.tsx       # Day 3: Beast (purple theme)
-│   └── HistoryScreen.tsx      # Workout history log
+│   ├── HistoryScreen.tsx      # Workout history log
+│   └── PRScreen.tsx           # Personal records display
 │
 ├── store/               # State management (Zustand)
 │   └── workoutStore.ts      # Unified store keyed by day + history hooks
@@ -91,6 +92,7 @@ type Exercise = {
 | Wednesday | toxicGreen       | #39FF14   |
 | Friday    | beastPurple      | #4a0080   |
 | History   | completeGreen    | #2ecc71   |
+| PRs       | longevityGold    | #D4AF37   |
 
 Pull/longevity exercises always use `longevityGold` (#D4AF37).
 
@@ -106,7 +108,8 @@ State structure:
     wednesday: { checked, setsDone, weights, cardioOption },
     friday: { checked, setsDone, weights }
   },
-  history: WorkoutHistoryEntry[]  // Completed workout log
+  history: WorkoutHistoryEntry[],  // Completed workout log
+  personalRecords: PersonalRecords  // PRs for each exercise
 }
 ```
 
@@ -220,6 +223,56 @@ type WorkoutHistoryEntry = {
 - **Delete Entries**: Remove individual history entries
 - **Per-Exercise Breakdown**: See weights and reps for each exercise
 
+## Personal Records (PRs)
+
+The app automatically tracks personal records when completing workouts. PRs are calculated and updated when you save a workout to history.
+
+### What Gets Tracked
+
+- **Max Weight**: Heaviest single-set weight for each exercise
+- **Max Volume**: Best total volume for each exercise in a single workout
+- **Best Workout**: Highest total volume achieved in any single workout session
+
+### Using PRs in Code
+
+```typescript
+import { usePersonalRecords } from "../store/workoutStore";
+
+function MyComponent() {
+  const { personalRecords, exercisePRs } = usePersonalRecords();
+
+  // personalRecords: PersonalRecords - full PR data structure
+  // exercisePRs: ExercisePR[] - array of per-exercise PRs
+}
+```
+
+### PR Types
+
+```typescript
+type ExercisePR = {
+  exerciseId: string;
+  exerciseName: string;
+  maxWeight: number;       // Heaviest single-set weight
+  maxWeightDate: string;   // ISO date string
+  maxVolume: number;       // Best total volume in a single workout
+  maxVolumeDate: string;   // ISO date string
+};
+
+type PersonalRecords = {
+  exercises: Record<string, ExercisePR>;  // keyed by exerciseId
+  bestWorkoutVolume: number;              // Best single-workout total volume
+  bestWorkoutVolumeDate: string | null;   // ISO date string
+  bestWorkoutVolumeDay: "monday" | "wednesday" | "friday" | null;
+};
+```
+
+### PR Screen Features
+
+- **Best Workout**: Highlights the best single-workout volume with day and date
+- **Exercise PRs**: Lists all exercises with recorded PRs, sorted by max weight
+- **Max Weight**: Shows heaviest weight used for each exercise
+- **Max Volume**: Shows best volume per exercise in a single workout
+
 ## Available Colors (COLORS)
 
 ```typescript
@@ -252,4 +305,4 @@ npx expo start
 - [x] Tab Navigation between days
 - [x] Weight tracking per set
 - [x] Historical data / workout history
-- [ ] Personal records (PRs) tracking
+- [x] Personal records (PRs) tracking
