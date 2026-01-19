@@ -11,7 +11,7 @@ import {
   WEDNESDAY_MOBILITY_EXERCISES,
 } from "../utils/wednesdayWorkoutData";
 import { COLORS } from "../theme";
-import { useWednesdayWorkoutStore } from "../store/wednesdayWorkoutStore";
+import { useWednesdayWorkoutStore } from "../store/workoutStore";
 
 export function WednesdayScreen() {
   const {

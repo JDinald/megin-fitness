@@ -32,9 +32,7 @@ src/
 │   └── StatsScreen.tsx        # Placeholder for future stats
 │
 ├── store/               # State management (Zustand)
-│   ├── mondayWorkoutStore.ts     # Monday state & persistence
-│   ├── wednesdayWorkoutStore.ts  # Wednesday state & persistence
-│   └── fridayWorkoutStore.ts     # Friday state & persistence
+│   └── workoutStore.ts      # Unified store keyed by day
 │
 ├── services/            # External integrations
 │   └── mmkv.ts             # MMKV storage for Zustand persist
@@ -64,15 +62,13 @@ src/
    export const {DAY}_EXERCISES: Exercise[] = [...];
    ```
 
-2. **Create store hook** in `src/store/{day}WorkoutStore.ts`:
-   - Import day-specific exercises
-   - Use Zustand `create()` with `persist()` middleware
-   - Use `zustandStorage` from `../services/mmkv`
-   - Use unique storage key: `"{day}-sustainable-v1"`
+2. **Add day to unified store** in `src/store/workoutStore.ts`:
+   - Add day ID to `DayId` type
+   - Add default state in `getDefaultDayState()`
    - Export `use{Day}WorkoutStore()` hook
 
 3. **Create screen** in `src/screens/{Day}Screen.tsx`:
-   - Import day-specific store and exercises
+   - Import day-specific hook from `../store/workoutStore`
    - Set `primaryColor` prop on ExerciseCard for day theme
 
 ### Exercise Data Structure
@@ -101,11 +97,11 @@ type Exercise = {
 
 Pull/longevity exercises always use `longevityGold` (#D4AF37).
 
-### Storage Keys (MMKV)
+### Storage Key (MMKV)
 
-- Monday: `"monday-sustainable-v1"`
-- Wednesday: `"wednesday-sustainable-v1"` (includes cardio selection in state)
-- Friday: `"friday-sustainable-v1"`
+All workout state is stored in a single key: `"workouts-v1"`
+
+State structure: `{ days: { monday: {...}, wednesday: {...}, friday: {...} } }`
 
 ## Component Props
 

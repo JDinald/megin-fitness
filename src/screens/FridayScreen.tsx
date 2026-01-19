@@ -6,7 +6,7 @@ import { ProgressBar } from "../components/ProgressBar";
 import { WorkoutHeader } from "../components/WorkoutHeader";
 import { FRIDAY_EXERCISES } from "../utils/fridayWorkoutData";
 import { COLORS } from "../theme";
-import { useFridayWorkoutStore } from "../store/fridayWorkoutStore";
+import { useFridayWorkoutStore } from "../store/workoutStore";
 
 export function FridayScreen() {
   const { state, completedCount, progress, toggleExercise, toggleSet, resetWorkout } = useFridayWorkoutStore();
