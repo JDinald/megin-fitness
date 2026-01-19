@@ -396,53 +396,6 @@ export function calculateWorkoutStats(
   };
 }
 
-// Hook to get stats for all days
-export function useWorkoutStats() {
-  const store = useWorkoutStoreInternal();
-
-  const mondayStats = useMemo(() =>
-    calculateWorkoutStats(
-      MONDAY_EXERCISES,
-      store.days.monday.setsDone,
-      store.days.monday.weights
-    ), [store.days.monday.setsDone, store.days.monday.weights]
-  );
-
-  const wednesdayStats = useMemo(() =>
-    calculateWorkoutStats(
-      WEDNESDAY_CORE_EXERCISES,
-      store.days.wednesday.setsDone,
-      store.days.wednesday.weights
-    ), [store.days.wednesday.setsDone, store.days.wednesday.weights]
-  );
-
-  const fridayStats = useMemo(() =>
-    calculateWorkoutStats(
-      FRIDAY_EXERCISES,
-      store.days.friday.setsDone,
-      store.days.friday.weights
-    ), [store.days.friday.setsDone, store.days.friday.weights]
-  );
-
-  const totalStats = useMemo(() => ({
-    totalVolume: mondayStats.totalVolume + wednesdayStats.totalVolume + fridayStats.totalVolume,
-    totalSets: mondayStats.totalSets + wednesdayStats.totalSets + fridayStats.totalSets,
-    totalReps: mondayStats.totalReps + wednesdayStats.totalReps + fridayStats.totalReps,
-    averageWeightPerRep:
-      (mondayStats.totalReps + wednesdayStats.totalReps + fridayStats.totalReps) > 0
-        ? (mondayStats.totalVolume + wednesdayStats.totalVolume + fridayStats.totalVolume) /
-          (mondayStats.totalReps + wednesdayStats.totalReps + fridayStats.totalReps)
-        : 0,
-  }), [mondayStats, wednesdayStats, fridayStats]);
-
-  return {
-    monday: mondayStats,
-    wednesday: wednesdayStats,
-    friday: fridayStats,
-    total: totalStats,
-  };
-}
-
 // Hook to access workout history
 export function useWorkoutHistory() {
   const store = useWorkoutStoreInternal();
