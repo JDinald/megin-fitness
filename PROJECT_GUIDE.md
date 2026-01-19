@@ -11,11 +11,6 @@ A React Native (Expo) fitness tracking app for a 3-day sustainable workout progr
 - **Storage:** react-native-mmkv
 - **Styling:** React Native StyleSheet + expo-linear-gradient
 
-### Completed
-- [x] Expo SDK 54 (managed workflow)
-- [x] Zustand (state)
-- [x] MMKV (storage)
-
 ## Project Structure
 
 ```
