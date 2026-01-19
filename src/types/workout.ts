@@ -34,3 +34,24 @@ export type ExerciseStats = {
   weights: number[];
   averageWeight: number;
 };
+
+export type WorkoutHistoryEntry = {
+  id: string;
+  dayId: "monday" | "wednesday" | "friday";
+  completedAt: string; // ISO date string
+  duration?: number; // Duration in minutes (optional)
+  stats: {
+    totalVolume: number;
+    totalSets: number;
+    totalReps: number;
+    averageWeightPerRep: number;
+  };
+  exerciseData: {
+    exerciseId: string;
+    exerciseName: string;
+    setsCompleted: number;
+    totalReps: number;
+    weights: number[];
+    totalVolume: number;
+  }[];
+};

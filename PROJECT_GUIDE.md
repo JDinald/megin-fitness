@@ -24,10 +24,10 @@ src/
 │   ├── MondayScreen.tsx       # Day 1: Power (orange theme)
 │   ├── WednesdayScreen.tsx    # Day 2: Survival (green theme)
 │   ├── FridayScreen.tsx       # Day 3: Beast (purple theme)
-│   └── StatsScreen.tsx        # Training statistics & volume tracking
+│   └── HistoryScreen.tsx      # Workout history log
 │
 ├── store/               # State management (Zustand)
-│   └── workoutStore.ts      # Unified store keyed by day + stats hooks
+│   └── workoutStore.ts      # Unified store keyed by day + history hooks
 │
 ├── services/            # External integrations
 │   └── mmkv.ts             # MMKV storage for Zustand persist
@@ -38,13 +38,13 @@ src/
 │   └── fridayWorkoutData.ts      # Friday exercise definitions
 │
 ├── types/               # TypeScript definitions
-│   └── workout.ts          # Exercise, PersistedState, WorkoutStats types
+│   └── workout.ts          # Exercise, PersistedState, WorkoutHistoryEntry types
 │
 ├── theme/               # Design system
 │   └── index.ts            # Color palette (COLORS)
 │
 └── navigation/          # Navigation setup
-    └── TabNavigator.tsx    # Mon/Wed/Fri + Stats tabs
+    └── TabNavigator.tsx    # Mon/Wed/Fri + History tabs
 ```
 
 ## Key Patterns
@@ -90,7 +90,7 @@ type Exercise = {
 | Monday    | infectedOrange   | #FF4500   |
 | Wednesday | toxicGreen       | #39FF14   |
 | Friday    | beastPurple      | #4a0080   |
-| Stats     | longevityGold    | #D4AF37   |
+| History   | completeGreen    | #2ecc71   |
 
 Pull/longevity exercises always use `longevityGold` (#D4AF37).
 
@@ -105,7 +105,8 @@ State structure:
     monday: { checked, setsDone, weights },
     wednesday: { checked, setsDone, weights, cardioOption },
     friday: { checked, setsDone, weights }
-  }
+  },
+  history: WorkoutHistoryEntry[]  // Completed workout log
 }
 ```
 
@@ -149,7 +150,7 @@ State structure:
 Each exercise with `repsPerSet` defined displays a weight input field (in kg) below each set button. Weights are:
 - Persisted per set in the store
 - Used for calculating training volume (weight × reps)
-- Displayed in the Stats screen
+- Saved to workout history when completing a workout
 
 ### Adding Weight Tracking to an Exercise
 
@@ -164,62 +165,60 @@ Add `repsPerSet` to the exercise definition:
 }
 ```
 
-## Training Statistics
+## Workout History
 
-The `StatsScreen` displays comprehensive training metrics:
+The app tracks completed workouts in a history log. When you complete a workout, it gets saved with all stats and exercise data.
 
-### Total Stats
-- **Total Volume**: Sum of (weight × reps) across all exercises
-- **Total Sets**: Count of completed sets
-- **Total Reps**: Sum of all reps performed
-- **Avg Weight/Rep**: Total volume divided by total reps
+### Completing a Workout
 
-### Per-Day Stats
-Each day (Monday, Wednesday, Friday) shows:
-- Volume, sets, reps, and average weight
-- Per-exercise breakdown with individual stats
+Each day screen has a "Complete Workout" button that appears when at least one exercise is started. Completing a workout:
+1. Saves the workout data to history
+2. Resets the day's progress to start fresh
 
-### Using Stats in Code
+### Using History in Code
 
 ```typescript
-import { useWorkoutStats } from "../store/workoutStore";
+import { useWorkoutHistory } from "../store/workoutStore";
 
 function MyComponent() {
-  const stats = useWorkoutStats();
+  const { history, deleteEntry } = useWorkoutHistory();
 
-  // stats.monday, stats.wednesday, stats.friday - per day stats
-  // stats.total - aggregate stats
-
-  // Each contains:
-  // - totalVolume: number
-  // - totalSets: number
-  // - totalReps: number
-  // - averageWeightPerRep: number
-  // - exerciseStats: ExerciseStats[] (per-day only)
+  // history: WorkoutHistoryEntry[] - array of completed workouts
+  // deleteEntry: (id: string) => void - remove an entry
 }
 ```
 
-### Stats Types
+### History Types
 
 ```typescript
-type WorkoutStats = {
-  totalVolume: number;       // Total weight × reps
-  totalSets: number;
-  totalReps: number;
-  averageWeightPerRep: number;
-  exerciseStats: ExerciseStats[];
-};
-
-type ExerciseStats = {
-  exerciseId: string;
-  exerciseName: string;
-  totalVolume: number;
-  setsCompleted: number;
-  totalReps: number;
-  weights: number[];
-  averageWeight: number;
+type WorkoutHistoryEntry = {
+  id: string;                    // Unique ID (e.g., "monday-1704067200000")
+  dayId: "monday" | "wednesday" | "friday";
+  completedAt: string;           // ISO date string
+  duration?: number;             // Duration in minutes (optional)
+  stats: {
+    totalVolume: number;
+    totalSets: number;
+    totalReps: number;
+    averageWeightPerRep: number;
+  };
+  exerciseData: {
+    exerciseId: string;
+    exerciseName: string;
+    setsCompleted: number;
+    totalReps: number;
+    weights: number[];
+    totalVolume: number;
+  }[];
 };
 ```
+
+### History Screen Features
+
+- **All Time Totals**: Total workouts, volume, and sets across all history
+- **Expandable Entries**: Tap to expand and see full workout details
+- **Delete Entries**: Remove individual history entries
+- **Per-Exercise Breakdown**: See weights and reps for each exercise
 
 ## Available Colors (COLORS)
 
@@ -252,6 +251,5 @@ npx expo start
 - [x] Friday - Beast Day (Heavy Compounds)
 - [x] Tab Navigation between days
 - [x] Weight tracking per set
-- [x] Stats screen with volume tracking
-- [ ] Historical data / workout history
+- [x] Historical data / workout history
 - [ ] Personal records (PRs) tracking

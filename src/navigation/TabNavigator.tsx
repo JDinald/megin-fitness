@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MondayScreen } from "../screens/MondayScreen";
 import { WednesdayScreen } from "../screens/WednesdayScreen";
 import { FridayScreen } from "../screens/FridayScreen";
-import { StatsScreen } from "../screens/StatsScreen";
+import { HistoryScreen } from "../screens/HistoryScreen";
 import { COLORS } from "../theme";
 
 const Tab = createBottomTabNavigator();
@@ -67,13 +67,13 @@ export function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Stats"
-        component={StatsScreen}
+        name="History"
+        component={HistoryScreen}
         options={{
-          tabBarLabel: "STATS",
+          tabBarLabel: "LOG",
           tabBarIcon: ({ focused }) => (
-            <View style={[styles.dayIndicator, focused && styles.dayIndicatorStatsActive]}>
-              <Text style={[styles.statsIcon, focused && styles.statsIconActive]}>%</Text>
+            <View style={[styles.dayIndicator, focused && styles.dayIndicatorHistoryActive]}>
+              <Text style={[styles.historyIcon, focused && styles.historyIconActive]}>H</Text>
             </View>
           ),
         }}
@@ -111,10 +111,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.beastPurple,
     backgroundColor: "rgba(74,0,128,0.15)",
   },
-  dayIndicatorStatsActive: {
-    borderColor: COLORS.longevityGold,
-    backgroundColor: "rgba(212,175,55,0.15)",
-  },
   dayNumber: {
     fontSize: 14,
     fontWeight: "900",
@@ -123,12 +119,16 @@ const styles = StyleSheet.create({
   dayNumberActive: {
     color: COLORS.boneWhite,
   },
-  statsIcon: {
+  dayIndicatorHistoryActive: {
+    borderColor: COLORS.completeGreen,
+    backgroundColor: "rgba(46,204,113,0.15)",
+  },
+  historyIcon: {
     fontSize: 14,
     fontWeight: "900",
     color: COLORS.muted,
   },
-  statsIconActive: {
-    color: COLORS.longevityGold,
+  historyIconActive: {
+    color: COLORS.completeGreen,
   },
 });
