@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
+  StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "../theme";
+import { CyberCard } from "../components/CyberCard";
 import { useWorkoutHistory } from "../store/workoutStore";
 import { WorkoutHistoryEntry } from "../types/workout";
 
@@ -30,7 +32,7 @@ function getDayLabel(dayId: string): string {
     case "monday":
       return "MONDAY - Power";
     case "wednesday":
-      return "WEDNESDAY - Core";
+      return "WEDNESDAY - Survival";
     case "friday":
       return "FRIDAY - Beast";
     default:
@@ -68,6 +70,11 @@ function HistoryEntryCard({
   const dayColor = getDayColor(entry.dayId);
 
   const handleDelete = () => {
+    if (Platform.OS === "web") {
+      // @ts-ignore
+      if (confirm("Delete this workout from history?")) onDelete();
+      return;
+    }
     Alert.alert(
       "Delete Entry",
       "Are you sure you want to delete this workout from history?",
@@ -79,76 +86,101 @@ function HistoryEntryCard({
   };
 
   return (
-    <View style={styles.entryCard}>
+    <View
+      className="mb-3 overflow-hidden border"
+      style={{
+        backgroundColor: COLORS.concreteGray,
+        borderColor: expanded ? dayColor : COLORS.steelGray,
+      }}
+    >
+      {/* Corner accents */}
+      <View
+        className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2"
+        style={{ borderColor: dayColor }}
+      />
+      <View
+        className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2"
+        style={{ borderColor: dayColor }}
+      />
+
       <TouchableOpacity
-        style={styles.entryHeader}
+        className="flex-row items-center p-3"
         onPress={() => setExpanded(!expanded)}
         activeOpacity={0.7}
       >
-        <View style={[styles.dayIndicator, { backgroundColor: dayColor }]} />
-        <View style={styles.entryInfo}>
-          <Text style={[styles.dayLabel, { color: dayColor }]}>
+        <View className="w-1 h-10 mr-3" style={{ backgroundColor: dayColor }} />
+        <View className="flex-1">
+          <Text className="text-xs font-black tracking-wide" style={{ color: dayColor }}>
             {getDayLabel(entry.dayId)}
           </Text>
-          <Text style={styles.dateText}>
+          <Text className="text-xs text-muted mt-1">
             {formatDate(entry.completedAt)} at {formatTime(entry.completedAt)}
           </Text>
         </View>
-        <View style={styles.entrySummary}>
-          <Text style={styles.volumeText}>
+        <View className="items-end mr-2">
+          <Text className="text-sm font-bold text-completeGreen">
             {entry.stats.totalVolume.toLocaleString()} kg
           </Text>
-          <Text style={styles.setsText}>{entry.stats.totalSets} sets</Text>
+          <Text className="text-xs text-muted mt-0.5">{entry.stats.totalSets} sets</Text>
         </View>
-        <Text style={styles.expandIcon}>{expanded ? "-" : "+"}</Text>
+        <Text className="text-lg font-bold text-muted w-5 text-center">
+          {expanded ? "-" : "+"}
+        </Text>
       </TouchableOpacity>
 
       {expanded && (
-        <View style={styles.entryDetails}>
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{entry.stats.totalVolume.toLocaleString()}</Text>
-              <Text style={styles.statLabel}>Volume (kg)</Text>
+        <View className="border-t p-3" style={{ borderColor: COLORS.steelGray }}>
+          {/* Stats row */}
+          <View className="flex-row justify-around pb-3 border-b" style={{ borderColor: COLORS.steelGray }}>
+            <View className="items-center">
+              <Text className="text-base font-black text-boneWhite">
+                {entry.stats.totalVolume.toLocaleString()}
+              </Text>
+              <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Volume (kg)</Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{entry.stats.totalSets}</Text>
-              <Text style={styles.statLabel}>Sets</Text>
+            <View className="items-center">
+              <Text className="text-base font-black text-boneWhite">{entry.stats.totalSets}</Text>
+              <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Sets</Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{entry.stats.totalReps}</Text>
-              <Text style={styles.statLabel}>Reps</Text>
+            <View className="items-center">
+              <Text className="text-base font-black text-boneWhite">{entry.stats.totalReps}</Text>
+              <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Reps</Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>
+            <View className="items-center">
+              <Text className="text-base font-black text-boneWhite">
                 {entry.stats.averageWeightPerRep.toFixed(1)}
               </Text>
-              <Text style={styles.statLabel}>Avg kg/rep</Text>
+              <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Avg kg/rep</Text>
             </View>
           </View>
 
+          {/* Exercises list */}
           {entry.exerciseData.length > 0 && (
-            <View style={styles.exercisesList}>
-              <Text style={styles.exercisesTitle}>Exercises</Text>
+            <View className="pt-3">
+              <Text className="text-xs text-muted font-bold uppercase tracking-wide mb-2">
+                Exercises
+              </Text>
               {entry.exerciseData.map((ex, index) => (
-                <View key={`${ex.exerciseId}-${index}`} style={styles.exerciseItem}>
-                  <View style={styles.exerciseInfo}>
-                    <Text style={styles.exerciseName} numberOfLines={1}>
+                <View
+                  key={`${ex.exerciseId}-${index}`}
+                  className="flex-row justify-between items-center py-2 border-b"
+                  style={{ borderColor: `${COLORS.steelGray}50` }}
+                >
+                  <View className="flex-1 mr-2">
+                    <Text className="text-sm font-semibold text-boneWhite" numberOfLines={1}>
                       {ex.exerciseName}
                     </Text>
-                    <Text style={styles.exerciseDetail}>
+                    <Text className="text-xs text-muted mt-0.5">
                       {ex.setsCompleted} sets x{" "}
-                      {ex.setsCompleted > 0
-                        ? Math.round(ex.totalReps / ex.setsCompleted)
-                        : 0}{" "}
-                      reps
+                      {ex.setsCompleted > 0 ? Math.round(ex.totalReps / ex.setsCompleted) : 0} reps
                     </Text>
                   </View>
-                  <View style={styles.exerciseStats}>
-                    <Text style={styles.exerciseVolume}>
+                  <View className="items-end">
+                    <Text className="text-sm font-bold text-completeGreen">
                       {ex.totalVolume.toLocaleString()} kg
                     </Text>
                     {ex.weights.length > 0 && (
-                      <Text style={styles.exerciseWeights}>
+                      <Text className="text-xs text-muted mt-0.5">
                         {ex.weights.join(" / ")} kg
                       </Text>
                     )}
@@ -158,12 +190,16 @@ function HistoryEntryCard({
             </View>
           )}
 
+          {/* Delete button */}
           <TouchableOpacity
-            style={styles.deleteButton}
+            className="mt-4 py-2 items-center border"
+            style={{ borderColor: COLORS.neonRed }}
             onPress={handleDelete}
             activeOpacity={0.7}
           >
-            <Text style={styles.deleteButtonText}>Delete Entry</Text>
+            <Text className="text-xs font-bold tracking-wide" style={{ color: COLORS.neonRed }}>
+              Delete Entry
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -179,295 +215,91 @@ export function HistoryScreen() {
   const totalSets = history.reduce((sum, e) => sum + e.stats.totalSets, 0);
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 bg-nightBlack">
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         <LinearGradient
-          colors={["rgba(212,175,55,0.08)", "transparent"]}
+          colors={["rgba(0,212,255,0.06)", "transparent"]}
           start={{ x: 0.2, y: 0 }}
           end={{ x: 0.8, y: 1 }}
           style={StyleSheet.absoluteFill}
         />
+        <LinearGradient
+          colors={["rgba(139,92,246,0.04)", "transparent"]}
+          start={{ x: 1, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.title}>HISTORY</Text>
-          <Text style={styles.subtitle}>Workout Log</Text>
-        </View>
-
-        <View style={styles.summarySection}>
-          <Text style={styles.summarySectionTitle}>ALL TIME TOTALS</Text>
-          <View style={styles.summaryGrid}>
-            <View style={styles.summaryCard}>
-              <Text style={[styles.summaryValue, { color: COLORS.longevityGold }]}>
-                {totalWorkouts}
-              </Text>
-              <Text style={styles.summaryLabel}>Workouts</Text>
-            </View>
-            <View style={styles.summaryCard}>
-              <Text style={[styles.summaryValue, { color: COLORS.completeGreen }]}>
-                {totalVolume.toLocaleString()}
-              </Text>
-              <Text style={styles.summaryLabel}>Total Volume (kg)</Text>
-            </View>
-            <View style={styles.summaryCard}>
-              <Text style={[styles.summaryValue, { color: COLORS.infectedOrange }]}>
-                {totalSets}
-              </Text>
-              <Text style={styles.summaryLabel}>Total Sets</Text>
-            </View>
+      <ScrollView
+        contentContainerStyle={{ padding: 15, paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View className="mb-5 items-center py-4">
+          <View className="flex-row items-center mb-1">
+            <View className="w-2 h-2 mr-2" style={{ backgroundColor: COLORS.neonBlue }} />
+            <Text className="text-3xl tracking-widest font-black text-boneWhite">HISTORY</Text>
+            <View className="w-2 h-2 ml-2" style={{ backgroundColor: COLORS.neonBlue }} />
           </View>
+          <Text className="text-sm text-muted tracking-wide">Mission Log</Text>
         </View>
 
-        {history.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>No Workouts Yet</Text>
-            <Text style={styles.emptyStateText}>
-              Complete a workout and tap "Complete Workout" to save it to your
-              history.
+        {/* Summary section */}
+        <CyberCard variant="default" glowIntensity="subtle">
+          <View className="p-4">
+            <Text className="text-xs tracking-widest font-bold text-center mb-4" style={{ color: COLORS.neonBlue }}>
+              ALL TIME STATS
             </Text>
+            <View className="flex-row justify-between">
+              <View className="flex-1 items-center py-2">
+                <Text className="text-2xl font-black text-xpGold">{totalWorkouts}</Text>
+                <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Workouts</Text>
+              </View>
+              <View className="flex-1 items-center py-2">
+                <Text className="text-2xl font-black text-completeGreen">
+                  {totalVolume.toLocaleString()}
+                </Text>
+                <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Volume (kg)</Text>
+              </View>
+              <View className="flex-1 items-center py-2">
+                <Text className="text-2xl font-black text-infectedOrange">{totalSets}</Text>
+                <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Sets</Text>
+              </View>
+            </View>
           </View>
-        ) : (
-          <View style={styles.historyList}>
-            <Text style={styles.historyListTitle}>RECENT WORKOUTS</Text>
-            {history.map((entry) => (
-              <HistoryEntryCard
-                key={entry.id}
-                entry={entry}
-                onDelete={() => deleteEntry(entry.id)}
-              />
-            ))}
-          </View>
-        )}
+        </CyberCard>
+
+        {/* History list */}
+        <View className="mt-5">
+          {history.length === 0 ? (
+            <CyberCard variant="default" glowIntensity="none">
+              <View className="items-center p-10">
+                <Text className="text-lg font-bold text-muted mb-2">No Missions Logged</Text>
+                <Text className="text-sm text-muted text-center opacity-60 leading-5">
+                  Complete a workout and tap "Complete Workout" to save it to your mission log.
+                </Text>
+              </View>
+            </CyberCard>
+          ) : (
+            <>
+              <View className="flex-row items-center mb-3">
+                <View className="w-1 h-4 bg-muted mr-2" />
+                <Text className="text-xs tracking-widest text-muted uppercase">
+                  Recent Missions
+                </Text>
+              </View>
+              {history.map((entry) => (
+                <HistoryEntryCard
+                  key={entry.id}
+                  entry={entry}
+                  onDelete={() => deleteEntry(entry.id)}
+                />
+              ))}
+            </>
+          )}
+        </View>
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.nightBlack },
-  content: { padding: 15, paddingBottom: 40 },
-
-  header: { marginBottom: 20, alignItems: "center" },
-  title: {
-    fontSize: 32,
-    letterSpacing: 4,
-    color: COLORS.boneWhite,
-    fontWeight: "900",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.muted,
-    marginTop: 5,
-    letterSpacing: 1,
-  },
-
-  summarySection: {
-    borderWidth: 1,
-    borderColor: COLORS.steelGray,
-    backgroundColor: COLORS.concreteGray,
-    padding: 15,
-    marginBottom: 20,
-  },
-  summarySectionTitle: {
-    fontSize: 12,
-    letterSpacing: 2,
-    color: COLORS.longevityGold,
-    fontWeight: "700",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  summaryGrid: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  summaryCard: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 10,
-  },
-  summaryValue: {
-    fontSize: 24,
-    fontWeight: "900",
-  },
-  summaryLabel: {
-    fontSize: 10,
-    color: COLORS.muted,
-    marginTop: 4,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    textAlign: "center",
-  },
-
-  emptyState: {
-    alignItems: "center",
-    padding: 40,
-    borderWidth: 1,
-    borderColor: COLORS.steelGray,
-    backgroundColor: COLORS.concreteGray,
-  },
-  emptyStateTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: COLORS.muted,
-    marginBottom: 8,
-  },
-  emptyStateText: {
-    fontSize: 13,
-    color: "#555",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-
-  historyList: {
-    marginBottom: 20,
-  },
-  historyListTitle: {
-    fontSize: 12,
-    letterSpacing: 2,
-    color: COLORS.muted,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
-
-  entryCard: {
-    borderWidth: 1,
-    borderColor: COLORS.steelGray,
-    backgroundColor: COLORS.concreteGray,
-    marginBottom: 10,
-    overflow: "hidden",
-  },
-  entryHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-  },
-  dayIndicator: {
-    width: 4,
-    height: 40,
-    marginRight: 12,
-  },
-  entryInfo: {
-    flex: 1,
-  },
-  dayLabel: {
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1,
-  },
-  dateText: {
-    fontSize: 11,
-    color: COLORS.muted,
-    marginTop: 2,
-  },
-  entrySummary: {
-    alignItems: "flex-end",
-    marginRight: 10,
-  },
-  volumeText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: COLORS.completeGreen,
-  },
-  setsText: {
-    fontSize: 10,
-    color: COLORS.muted,
-    marginTop: 2,
-  },
-  expandIcon: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: COLORS.muted,
-    width: 20,
-    textAlign: "center",
-  },
-
-  entryDetails: {
-    borderTopWidth: 1,
-    borderTopColor: COLORS.steelGray,
-    padding: 12,
-  },
-  statsRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.steelGray,
-  },
-  statItem: {
-    alignItems: "center",
-  },
-  statValue: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: COLORS.boneWhite,
-  },
-  statLabel: {
-    fontSize: 9,
-    color: COLORS.muted,
-    marginTop: 2,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-
-  exercisesList: {
-    paddingTop: 12,
-  },
-  exercisesTitle: {
-    fontSize: 10,
-    letterSpacing: 1,
-    color: COLORS.muted,
-    fontWeight: "700",
-    marginBottom: 8,
-    textTransform: "uppercase",
-  },
-  exerciseItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(45,45,45,0.5)",
-  },
-  exerciseInfo: {
-    flex: 1,
-    marginRight: 10,
-  },
-  exerciseName: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: COLORS.boneWhite,
-  },
-  exerciseDetail: {
-    fontSize: 11,
-    color: COLORS.muted,
-    marginTop: 2,
-  },
-  exerciseStats: {
-    alignItems: "flex-end",
-  },
-  exerciseVolume: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: COLORS.completeGreen,
-  },
-  exerciseWeights: {
-    fontSize: 10,
-    color: COLORS.muted,
-    marginTop: 2,
-  },
-
-  deleteButton: {
-    marginTop: 15,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: COLORS.neonRed,
-    alignItems: "center",
-  },
-  deleteButtonText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: COLORS.neonRed,
-    letterSpacing: 1,
-  },
-});
