@@ -4,7 +4,6 @@ module.exports = {
     "./App.{js,jsx,ts,tsx}",
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
-  presets: [require("nativewind/preset")],
   theme: {
     extend: {
       colors: {
@@ -38,11 +37,6 @@ module.exports = {
           orange: "#FF6600",
           yellow: "#FFFF00",
         },
-        holo: {
-          start: "#FF00FF",
-          mid: "#00FFFF",
-          end: "#FF00FF",
-        },
         xp: {
           bronze: "#CD7F32",
           silver: "#C0C0C0",
@@ -50,40 +44,6 @@ module.exports = {
           platinum: "#E5E4E2",
           diamond: "#B9F2FF",
         },
-        level: {
-          1: "#39FF14",
-          2: "#00D4FF",
-          3: "#8B5CF6",
-          4: "#FF00E5",
-          5: "#FFD700",
-        },
-      },
-      fontFamily: {
-        cyber: ["System"],
-      },
-      borderRadius: {
-        cyber: "2px",
-        hex: "4px",
-      },
-      boxShadow: {
-        neon: "0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor",
-        "neon-sm": "0 0 5px currentColor, 0 0 10px currentColor",
-        cyber: "0 0 15px rgba(0, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.3)",
-        "cyber-purple": "0 0 15px rgba(139, 92, 246, 0.5), 0 0 30px rgba(139, 92, 246, 0.3)",
-        "cyber-green": "0 0 15px rgba(57, 255, 20, 0.5), 0 0 30px rgba(57, 255, 20, 0.3)",
-        "cyber-orange": "0 0 15px rgba(255, 69, 0, 0.5), 0 0 30px rgba(255, 69, 0, 0.3)",
-        "cyber-gold": "0 0 15px rgba(212, 175, 55, 0.5), 0 0 30px rgba(212, 175, 55, 0.3)",
-      },
-      animation: {
-        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        glow: "glow 2s ease-in-out infinite alternate",
-        "scan-line": "scanLine 3s linear infinite",
-      },
-      backgroundImage: {
-        "grid-pattern": "linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px)",
-        "holo-gradient": "linear-gradient(135deg, #FF00FF 0%, #00FFFF 50%, #FF00FF 100%)",
-        "xp-gradient": "linear-gradient(90deg, #4a0080 0%, #39FF14 100%)",
-        "cyber-gradient": "linear-gradient(180deg, #0D0D1A 0%, #1a1a2e 100%)",
       },
     },
   },

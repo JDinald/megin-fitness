@@ -1,4 +1,3 @@
-import "./global.css";
 import React from "react";
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
