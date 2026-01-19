@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Pressable, Animated } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, Pressable, Animated, TextInput } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Exercise } from "../types/workout";
 import { COLORS } from "../theme";
@@ -8,8 +8,10 @@ type ExerciseCardProps = {
   ex: Exercise;
   checked: boolean;
   setsDone?: boolean[];
+  weights?: number[];
   onToggle: () => void;
   onToggleSet: (setIndex: number) => void;
+  onSetWeight?: (setIndex: number, weight: number) => void;
   primaryColor?: string;
 };
 
@@ -17,8 +19,10 @@ export function ExerciseCard({
   ex,
   checked,
   setsDone,
+  weights,
   onToggle,
   onToggleSet,
+  onSetWeight,
   primaryColor = COLORS.beastPurple,
 }: ExerciseCardProps) {
   const neon = useRef(new Animated.Value(0)).current;
@@ -129,23 +133,42 @@ export function ExerciseCard({
         </View>
       </Pressable>
 
-      {/* Set tracker */}
+      {/* Set tracker with weight input */}
       {ex.setsCount && ex.setsCount > 0 ? (
         <View style={styles.setRow}>
           {Array.from({ length: ex.setsCount }).map((_, i) => {
             const done = !!setsDone?.[i];
+            const weight = weights?.[i] ?? 0;
+            const showWeightInput = ex.repsPerSet && ex.repsPerSet > 0;
             return (
-              <Pressable
-                key={`${ex.id}-set-${i}`}
-                onPress={() => onToggleSet(i)}
-                style={({ pressed }) => [
-                  styles.setBtn,
-                  done && styles.setBtnDone,
-                  pressed && { transform: [{ scale: 0.97 }] },
-                ]}
-              >
-                <Text style={[styles.setBtnText, done && styles.setBtnTextDone]}>{i + 1}</Text>
-              </Pressable>
+              <View key={`${ex.id}-set-${i}`} style={styles.setContainer}>
+                <Pressable
+                  onPress={() => onToggleSet(i)}
+                  style={({ pressed }) => [
+                    styles.setBtn,
+                    done && styles.setBtnDone,
+                    pressed && { transform: [{ scale: 0.97 }] },
+                  ]}
+                >
+                  <Text style={[styles.setBtnText, done && styles.setBtnTextDone]}>{i + 1}</Text>
+                </Pressable>
+                {showWeightInput && (
+                  <View style={styles.weightInputContainer}>
+                    <TextInput
+                      style={[styles.weightInput, done && styles.weightInputDone]}
+                      keyboardType="numeric"
+                      placeholder="0"
+                      placeholderTextColor="#555"
+                      value={weight > 0 ? String(weight) : ""}
+                      onChangeText={(text) => {
+                        const parsed = parseFloat(text) || 0;
+                        onSetWeight?.(i, parsed);
+                      }}
+                    />
+                    <Text style={styles.weightUnit}>kg</Text>
+                  </View>
+                )}
+              </View>
             );
           })}
         </View>
@@ -185,8 +208,13 @@ const styles = StyleSheet.create({
   rightBottom: { fontSize: 11, color: "#555", marginTop: 2 },
 
   setRow: { flexDirection: "row", flexWrap: "wrap", paddingLeft: 58, paddingRight: 15, paddingBottom: 15 },
-  setBtn: { width: 36, height: 36, backgroundColor: COLORS.steelGray, borderWidth: 1, borderColor: "#444", alignItems: "center", justifyContent: "center", marginRight: 8, marginBottom: 8 },
+  setContainer: { alignItems: "center", marginRight: 12, marginBottom: 8 },
+  setBtn: { width: 36, height: 36, backgroundColor: COLORS.steelGray, borderWidth: 1, borderColor: "#444", alignItems: "center", justifyContent: "center" },
   setBtnDone: { backgroundColor: COLORS.completeGreen, borderColor: COLORS.completeGreen },
   setBtnText: { fontSize: 14, color: "#666", fontWeight: "800" },
   setBtnTextDone: { color: COLORS.nightBlack },
+  weightInputContainer: { flexDirection: "row", alignItems: "center", marginTop: 4 },
+  weightInput: { width: 40, height: 24, backgroundColor: COLORS.nightBlack, borderWidth: 1, borderColor: "#444", color: COLORS.boneWhite, fontSize: 12, textAlign: "center", paddingHorizontal: 2, paddingVertical: 0 },
+  weightInputDone: { borderColor: COLORS.completeGreen },
+  weightUnit: { fontSize: 10, color: COLORS.muted, marginLeft: 2 },
 });

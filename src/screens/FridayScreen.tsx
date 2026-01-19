@@ -9,7 +9,7 @@ import { COLORS } from "../theme";
 import { useFridayWorkoutStore } from "../store/workoutStore";
 
 export function FridayScreen() {
-  const { state, completedCount, progress, toggleExercise, toggleSet, resetWorkout } = useFridayWorkoutStore();
+  const { state, completedCount, progress, toggleExercise, toggleSet, setWeight, resetWorkout } = useFridayWorkoutStore();
   const totalExercises = FRIDAY_EXERCISES.length;
 
   const handleResetWorkout = () => {
@@ -85,8 +85,10 @@ export function FridayScreen() {
               ex={ex}
               checked={!!state.checked[ex.id]}
               setsDone={state.setsDone[ex.id]}
+              weights={state.weights[ex.id]}
               onToggle={() => toggleExercise(ex.id)}
               onToggleSet={(i) => toggleSet(ex, i)}
+              onSetWeight={(i, w) => setWeight(ex.id, i, w)}
             />
           ))}
         </View>
@@ -99,8 +101,10 @@ export function FridayScreen() {
               ex={ex}
               checked={!!state.checked[ex.id]}
               setsDone={state.setsDone[ex.id]}
+              weights={state.weights[ex.id]}
               onToggle={() => toggleExercise(ex.id)}
               onToggleSet={(i) => toggleSet(ex, i)}
+              onSetWeight={(i, w) => setWeight(ex.id, i, w)}
             />
           ))}
         </View>
@@ -113,8 +117,10 @@ export function FridayScreen() {
               ex={ex}
               checked={!!state.checked[ex.id]}
               setsDone={state.setsDone[ex.id]}
+              weights={state.weights[ex.id]}
               onToggle={() => toggleExercise(ex.id)}
               onToggleSet={(i) => toggleSet(ex, i)}
+              onSetWeight={(i, w) => setWeight(ex.id, i, w)}
             />
           ))}
         </View>
