@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Animated, TextInput } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, Pressable, Animated, TextInput, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Exercise } from "../types/workout";
 import { COLORS } from "../theme";
@@ -25,137 +25,239 @@ export function ExerciseCard({
   onSetWeight,
   primaryColor = COLORS.beastPurple,
 }: ExerciseCardProps) {
-  const neon = useRef(new Animated.Value(0)).current;
+  const neonPulse = useRef(new Animated.Value(0)).current;
+  const scanLine = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!checked) {
-      neon.stopAnimation();
-      neon.setValue(0);
+      neonPulse.stopAnimation();
+      neonPulse.setValue(0);
+      scanLine.stopAnimation();
       return;
     }
 
-    const loop = Animated.loop(
+    // Neon pulse effect when completed
+    const pulseLoop = Animated.loop(
       Animated.sequence([
-        Animated.timing(neon, { toValue: 1, duration: 500, useNativeDriver: true }),
-        Animated.timing(neon, { toValue: 0, duration: 500, useNativeDriver: true }),
+        Animated.timing(neonPulse, { toValue: 1, duration: 600, useNativeDriver: true }),
+        Animated.timing(neonPulse, { toValue: 0, duration: 600, useNativeDriver: true }),
       ])
     );
-    loop.start();
 
-    return () => loop.stop();
-  }, [checked, neon]);
+    // Scanline sweep effect
+    const scanLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scanLine, { toValue: 1, duration: 2000, useNativeDriver: true }),
+        Animated.timing(scanLine, { toValue: 0, duration: 0, useNativeDriver: true }),
+      ])
+    );
 
-  const leftColor =
-    checked
-      ? COLORS.completeGreen
-      : ex.variant === "pull" || ex.variant === "longevity"
-      ? COLORS.longevityGold
-      : primaryColor;
+    pulseLoop.start();
+    scanLoop.start();
+
+    return () => {
+      pulseLoop.stop();
+      scanLoop.stop();
+    };
+  }, [checked, neonPulse, scanLine]);
+
+  const leftColor = checked
+    ? COLORS.completeGreen
+    : ex.variant === "pull" || ex.variant === "longevity"
+    ? COLORS.longevityGold
+    : primaryColor;
 
   const checkboxBorder =
     ex.variant === "pull" || ex.variant === "longevity" ? COLORS.longevityGold : primaryColor;
 
-  return (
-    <View style={[styles.card, checked && styles.cardCompleted]}>
-      {/* left accent */}
-      <View style={[styles.cardAccent, { backgroundColor: leftColor }]} />
+  const glowColor = checked ? COLORS.completeGreen : primaryColor;
 
-      {/* RED NEON OVERLAY (only visible when checked) */}
+  return (
+    <View
+      className="relative mb-3 overflow-hidden"
+      style={{
+        backgroundColor: COLORS.concreteGray,
+        borderWidth: 1,
+        borderColor: checked ? COLORS.completeGreen : COLORS.steelGray,
+        opacity: checked ? 0.85 : 1,
+      }}
+    >
+      {/* Corner accents - futuristic design */}
+      <View
+        className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2"
+        style={{ borderColor: leftColor }}
+      />
+      <View
+        className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2"
+        style={{ borderColor: leftColor }}
+      />
+      <View
+        className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2"
+        style={{ borderColor: leftColor }}
+      />
+      <View
+        className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2"
+        style={{ borderColor: leftColor }}
+      />
+
+      {/* Left accent bar */}
+      <View
+        className="absolute left-0 top-0 bottom-0 w-1"
+        style={{ backgroundColor: leftColor }}
+      />
+
+      {/* Neon glow overlay (visible when completed) */}
       <Animated.View
         pointerEvents="none"
         style={[
-          styles.neonOverlay,
+          StyleSheet.absoluteFillObject,
           {
-            opacity: neon.interpolate({ inputRange: [0, 1], outputRange: [0.0, 0.35] }),
-            transform: [
-              { scale: neon.interpolate({ inputRange: [0, 1], outputRange: [1, 1.01] }) },
-            ],
+            borderWidth: 1,
+            borderColor: `${glowColor}70`,
+            opacity: neonPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 0.4] }),
           },
         ]}
       >
         <LinearGradient
-          colors={["rgba(255,26,26,0.0)", "rgba(255,26,26,0.20)", "rgba(255,26,26,0.0)"]}
+          colors={[`${glowColor}00`, `${glowColor}25`, `${glowColor}00`]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
+          style={StyleSheet.absoluteFillObject}
         />
       </Animated.View>
 
-      <Pressable onPress={onToggle} style={styles.cardMain}>
+      {/* Scanline effect */}
+      {checked && (
+        <Animated.View
+          pointerEvents="none"
+          className="absolute left-0 right-0 h-px"
+          style={{
+            backgroundColor: COLORS.cyberCyan,
+            opacity: 0.3,
+            transform: [
+              {
+                translateY: scanLine.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 120],
+                }),
+              },
+            ],
+          }}
+        />
+      )}
+
+      {/* Main pressable content */}
+      <Pressable onPress={onToggle} className="flex-row items-center p-4">
         {/* Checkbox */}
-        <View style={styles.checkboxBox}>
+        <View className="w-7 h-7 items-center justify-center mr-4">
           <View
-            style={[
-              styles.checkbox,
-              { borderColor: checkboxBorder },
-              checked && { backgroundColor: COLORS.completeGreen, borderColor: COLORS.completeGreen },
-            ]}
+            className="w-7 h-7 items-center justify-center"
+            style={{
+              borderWidth: 2,
+              borderColor: checked ? COLORS.completeGreen : checkboxBorder,
+              backgroundColor: checked ? COLORS.completeGreen : "transparent",
+            }}
           >
-            <Text style={[styles.checkboxTick, checked && { color: COLORS.nightBlack }]}> </Text>
+            {checked && (
+              <Text className="text-nightBlack font-black text-xs">OK</Text>
+            )}
           </View>
         </View>
 
-        {/* Info */}
-        <View style={styles.cardInfo}>
-          <View style={styles.nameRow}>
-            <Text style={[styles.cardName, checked && styles.cardNameCompleted]} numberOfLines={1}>
+        {/* Exercise info */}
+        <View className="flex-1 min-w-0">
+          <View className="flex-row items-center">
+            <Text
+              className={`text-base font-bold mr-2 ${
+                checked ? "line-through text-muted" : "text-boneWhite"
+              }`}
+              numberOfLines={1}
+            >
               {ex.name}
             </Text>
 
-            {!!ex.badge ? (
+            {ex.badge && (
               <View
-                style={[
-                  styles.badge,
-                  ex.badge.kind === "beast" && { backgroundColor: "rgba(74,0,128,0.30)" },
-                  (ex.badge.kind === "pull" || ex.badge.kind === "core") && { backgroundColor: "rgba(212,175,55,0.20)" },
-                ]}
+                className="px-2 py-0.5"
+                style={{
+                  backgroundColor:
+                    ex.badge.kind === "beast"
+                      ? `${COLORS.beastPurple}40`
+                      : `${COLORS.longevityGold}30`,
+                }}
               >
                 <Text
-                  style={[
-                    styles.badgeText,
-                    ex.badge.kind === "beast" && { color: COLORS.beastPurple },
-                    (ex.badge.kind === "pull" || ex.badge.kind === "core") && { color: COLORS.longevityGold },
-                  ]}
+                  className="text-xs font-black tracking-wider"
+                  style={{
+                    color:
+                      ex.badge.kind === "beast"
+                        ? COLORS.cyberPurple
+                        : COLORS.longevityGold,
+                  }}
                 >
                   {ex.badge.text}
                 </Text>
               </View>
-            ) : null}
+            )}
           </View>
 
-          {!!ex.detail ? <Text style={styles.cardDetail}>{ex.detail}</Text> : null}
+          {ex.detail && (
+            <Text className="text-xs text-muted mt-1">{ex.detail}</Text>
+          )}
         </View>
 
-        {/* Right */}
-        <View style={styles.cardRight}>
-          <Text style={styles.rightTop}>{ex.rightTop}</Text>
-          {!!ex.rightBottom ? <Text style={styles.rightBottom}>{ex.rightBottom}</Text> : null}
+        {/* Right side - sets/reps info */}
+        <View className="items-end ml-2">
+          <Text
+            className="text-sm font-black"
+            style={{ color: COLORS.neonBlue }}
+          >
+            {ex.rightTop}
+          </Text>
+          {ex.rightBottom && (
+            <Text className="text-xs text-muted mt-1">{ex.rightBottom}</Text>
+          )}
         </View>
       </Pressable>
 
       {/* Set tracker with weight input */}
-      {ex.setsCount && ex.setsCount > 0 ? (
-        <View style={styles.setRow}>
+      {ex.setsCount && ex.setsCount > 0 && (
+        <View className="flex-row flex-wrap pl-14 pr-4 pb-4">
           {Array.from({ length: ex.setsCount }).map((_, i) => {
             const done = !!setsDone?.[i];
             const weight = weights?.[i] ?? 0;
             const showWeightInput = ex.repsPerSet && ex.repsPerSet > 0;
+
             return (
-              <View key={`${ex.id}-set-${i}`} style={styles.setContainer}>
+              <View key={`${ex.id}-set-${i}`} className="items-center mr-3 mb-2">
                 <Pressable
                   onPress={() => onToggleSet(i)}
-                  style={({ pressed }) => [
-                    styles.setBtn,
-                    done && styles.setBtnDone,
-                    pressed && { transform: [{ scale: 0.97 }] },
-                  ]}
+                  className="w-10 h-10 items-center justify-center"
+                  style={({ pressed }) => ({
+                    backgroundColor: done ? COLORS.completeGreen : COLORS.steelGray,
+                    borderWidth: 1,
+                    borderColor: done ? COLORS.completeGreen : "#444",
+                    transform: [{ scale: pressed ? 0.95 : 1 }],
+                  })}
                 >
-                  <Text style={[styles.setBtnText, done && styles.setBtnTextDone]}>{i + 1}</Text>
+                  <Text
+                    className="text-sm font-black"
+                    style={{ color: done ? COLORS.nightBlack : "#666" }}
+                  >
+                    {i + 1}
+                  </Text>
                 </Pressable>
+
                 {showWeightInput && (
-                  <View style={styles.weightInputContainer}>
+                  <View className="flex-row items-center mt-1">
                     <TextInput
-                      style={[styles.weightInput, done && styles.weightInputDone]}
+                      className="w-10 h-6 text-center text-xs"
+                      style={{
+                        backgroundColor: COLORS.nightBlack,
+                        borderWidth: 1,
+                        borderColor: done ? COLORS.neonBlue : "#444",
+                        color: COLORS.boneWhite,
+                      }}
                       keyboardType="numeric"
                       placeholder="0"
                       placeholderTextColor="#555"
@@ -165,56 +267,23 @@ export function ExerciseCard({
                         onSetWeight?.(i, parsed);
                       }}
                     />
-                    <Text style={styles.weightUnit}>kg</Text>
+                    <Text className="text-xs text-muted ml-1">kg</Text>
                   </View>
                 )}
               </View>
             );
           })}
         </View>
-      ) : null}
+      )}
+
+      {/* Bottom status bar */}
+      <View
+        className="h-0.5"
+        style={{
+          backgroundColor: checked ? COLORS.completeGreen : leftColor,
+          opacity: 0.5,
+        }}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: { position: "relative", backgroundColor: COLORS.concreteGray, borderWidth: 1, borderColor: COLORS.steelGray, marginBottom: 10, overflow: "hidden" },
-  cardCompleted: { opacity: 0.8 },
-  cardAccent: { position: "absolute", left: 0, top: 0, bottom: 0, width: 3 },
-
-  neonOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    borderWidth: 1,
-    borderColor: "rgba(255,26,26,0.45)",
-  },
-
-  cardMain: { flexDirection: "row", alignItems: "center", padding: 15 },
-
-  checkboxBox: { width: 28, height: 28, alignItems: "center", justifyContent: "center", marginRight: 15 },
-  checkbox: { width: 28, height: 28, borderWidth: 2, alignItems: "center", justifyContent: "center" },
-  checkboxTick: { fontSize: 16, color: "transparent", fontWeight: "900" },
-
-  cardInfo: { flex: 1, minWidth: 0 },
-  nameRow: { flexDirection: "row", alignItems: "center" },
-  cardName: { fontSize: 15, fontWeight: "700", color: COLORS.boneWhite, marginRight: 8 },
-  cardNameCompleted: { textDecorationLine: "line-through", color: "#666" },
-  cardDetail: { fontSize: 12, color: "#666", marginTop: 3 },
-
-  badge: { paddingVertical: 2, paddingHorizontal: 6 },
-  badgeText: { fontSize: 9, letterSpacing: 1, fontWeight: "800" },
-
-  cardRight: { alignItems: "flex-end" },
-  rightTop: { fontSize: 14, color: COLORS.toxicGreen, fontWeight: "800" },
-  rightBottom: { fontSize: 11, color: "#555", marginTop: 2 },
-
-  setRow: { flexDirection: "row", flexWrap: "wrap", paddingLeft: 58, paddingRight: 15, paddingBottom: 15 },
-  setContainer: { alignItems: "center", marginRight: 12, marginBottom: 8 },
-  setBtn: { width: 36, height: 36, backgroundColor: COLORS.steelGray, borderWidth: 1, borderColor: "#444", alignItems: "center", justifyContent: "center" },
-  setBtnDone: { backgroundColor: COLORS.completeGreen, borderColor: COLORS.completeGreen },
-  setBtnText: { fontSize: 14, color: "#666", fontWeight: "800" },
-  setBtnTextDone: { color: COLORS.nightBlack },
-  weightInputContainer: { flexDirection: "row", alignItems: "center", marginTop: 4 },
-  weightInput: { width: 40, height: 24, backgroundColor: COLORS.nightBlack, borderWidth: 1, borderColor: "#444", color: COLORS.boneWhite, fontSize: 12, textAlign: "center", paddingHorizontal: 2, paddingVertical: 0 },
-  weightInputDone: { borderColor: COLORS.completeGreen },
-  weightUnit: { fontSize: 10, color: COLORS.muted, marginLeft: 2 },
-});

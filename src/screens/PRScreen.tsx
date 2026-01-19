@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "../theme";
+import { CyberCard } from "../components/CyberCard";
 import { usePersonalRecords } from "../store/workoutStore";
 import { ExercisePR } from "../types/workout";
 
@@ -27,7 +23,7 @@ function getDayColor(dayId: string | null): string {
     case "wednesday":
       return COLORS.toxicGreen;
     case "friday":
-      return COLORS.beastPurple;
+      return COLORS.cyberPurple;
     default:
       return COLORS.muted;
   }
@@ -36,11 +32,11 @@ function getDayColor(dayId: string | null): string {
 function getDayLabel(dayId: string | null): string {
   switch (dayId) {
     case "monday":
-      return "Monday";
+      return "MONDAY";
     case "wednesday":
-      return "Wednesday";
+      return "WEDNESDAY";
     case "friday":
-      return "Friday";
+      return "FRIDAY";
     default:
       return "N/A";
   }
@@ -48,28 +44,57 @@ function getDayLabel(dayId: string | null): string {
 
 function PRCard({ pr }: { pr: ExercisePR }) {
   return (
-    <View style={styles.prCard}>
-      <Text style={styles.exerciseName} numberOfLines={1}>
+    <View
+      className="mb-3 p-4 border overflow-hidden"
+      style={{
+        backgroundColor: COLORS.concreteGray,
+        borderColor: COLORS.steelGray,
+      }}
+    >
+      {/* Corner accents */}
+      <View
+        className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2"
+        style={{ borderColor: COLORS.xpGold }}
+      />
+      <View
+        className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2"
+        style={{ borderColor: COLORS.xpGold }}
+      />
+      <View
+        className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2"
+        style={{ borderColor: COLORS.xpGold }}
+      />
+      <View
+        className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2"
+        style={{ borderColor: COLORS.xpGold }}
+      />
+
+      <Text className="text-sm font-bold text-boneWhite mb-3 tracking-wide" numberOfLines={1}>
         {pr.exerciseName}
       </Text>
-      <View style={styles.prStatsRow}>
-        <View style={styles.prStat}>
-          <Text style={[styles.prValue, { color: COLORS.longevityGold }]}>
+
+      <View className="flex-row justify-around">
+        <View className="flex-1 items-center">
+          <Text className="text-lg font-black" style={{ color: COLORS.xpGold }}>
             {pr.maxWeight > 0 ? `${pr.maxWeight} kg` : "-"}
           </Text>
-          <Text style={styles.prLabel}>Max Weight</Text>
+          <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Max Weight</Text>
           {pr.maxWeight > 0 && (
-            <Text style={styles.prDate}>{formatDate(pr.maxWeightDate)}</Text>
+            <Text className="text-xs mt-1" style={{ color: "#555" }}>
+              {formatDate(pr.maxWeightDate)}
+            </Text>
           )}
         </View>
-        <View style={styles.prDivider} />
-        <View style={styles.prStat}>
-          <Text style={[styles.prValue, { color: COLORS.completeGreen }]}>
+        <View className="w-px mx-4" style={{ backgroundColor: COLORS.steelGray }} />
+        <View className="flex-1 items-center">
+          <Text className="text-lg font-black text-completeGreen">
             {pr.maxVolume > 0 ? `${pr.maxVolume.toLocaleString()} kg` : "-"}
           </Text>
-          <Text style={styles.prLabel}>Best Volume</Text>
+          <Text className="text-xs text-muted mt-1 uppercase tracking-wide">Best Volume</Text>
           {pr.maxVolume > 0 && (
-            <Text style={styles.prDate}>{formatDate(pr.maxVolumeDate)}</Text>
+            <Text className="text-xs mt-1" style={{ color: "#555" }}>
+              {formatDate(pr.maxVolumeDate)}
+            </Text>
           )}
         </View>
       </View>
@@ -81,7 +106,6 @@ export function PRScreen() {
   const { personalRecords, exercisePRs } = usePersonalRecords();
 
   const sortedPRs = [...exercisePRs].sort((a, b) => {
-    // Sort by max weight descending
     if (b.maxWeight !== a.maxWeight) {
       return b.maxWeight - a.maxWeight;
     }
@@ -92,206 +116,99 @@ export function PRScreen() {
   const hasBestWorkout = personalRecords.bestWorkoutVolume > 0;
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 bg-nightBlack">
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         <LinearGradient
-          colors={["rgba(212,175,55,0.08)", "transparent"]}
+          colors={["rgba(212,175,55,0.1)", "transparent"]}
           start={{ x: 0.2, y: 0 }}
           end={{ x: 0.8, y: 1 }}
           style={StyleSheet.absoluteFill}
         />
+        <LinearGradient
+          colors={["rgba(255,215,0,0.05)", "transparent"]}
+          start={{ x: 1, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.title}>RECORDS</Text>
-          <Text style={styles.subtitle}>Personal Bests</Text>
+      <ScrollView
+        contentContainerStyle={{ padding: 15, paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View className="mb-5 items-center py-4">
+          <View className="flex-row items-center mb-1">
+            <View className="w-2 h-2 mr-2" style={{ backgroundColor: COLORS.xpGold }} />
+            <Text className="text-3xl tracking-widest font-black text-boneWhite">RECORDS</Text>
+            <View className="w-2 h-2 ml-2" style={{ backgroundColor: COLORS.xpGold }} />
+          </View>
+          <Text className="text-sm text-muted tracking-wide">Personal Bests</Text>
         </View>
 
+        {/* Best workout section */}
         {hasBestWorkout && (
-          <View style={styles.bestWorkoutSection}>
-            <Text style={styles.sectionTitle}>BEST WORKOUT</Text>
-            <View style={styles.bestWorkoutCard}>
-              <View style={styles.bestWorkoutMain}>
-                <Text style={[styles.bestWorkoutValue, { color: COLORS.longevityGold }]}>
-                  {personalRecords.bestWorkoutVolume.toLocaleString()} kg
-                </Text>
-                <Text style={styles.bestWorkoutLabel}>Total Volume</Text>
-              </View>
-              <View style={styles.bestWorkoutMeta}>
-                <View style={[
-                  styles.dayBadge,
-                  { backgroundColor: getDayColor(personalRecords.bestWorkoutVolumeDay) }
-                ]}>
-                  <Text style={styles.dayBadgeText}>
-                    {getDayLabel(personalRecords.bestWorkoutVolumeDay)}
+          <View className="mb-5">
+            <View className="flex-row items-center mb-3">
+              <View className="w-1 h-4 mr-2" style={{ backgroundColor: COLORS.xpGold }} />
+              <Text className="text-xs tracking-widest uppercase" style={{ color: COLORS.xpGold }}>
+                Best Workout
+              </Text>
+            </View>
+
+            <CyberCard variant="gold" glowIntensity="medium" animated>
+              <View className="p-5 flex-row justify-between items-center">
+                <View className="flex-1">
+                  <Text className="text-3xl font-black" style={{ color: COLORS.xpGold }}>
+                    {personalRecords.bestWorkoutVolume.toLocaleString()} kg
+                  </Text>
+                  <Text className="text-xs text-muted mt-1 uppercase tracking-wide">
+                    Total Volume
                   </Text>
                 </View>
-                <Text style={styles.bestWorkoutDate}>
-                  {formatDate(personalRecords.bestWorkoutVolumeDate)}
-                </Text>
+                <View className="items-end">
+                  <View
+                    className="px-3 py-1 mb-2"
+                    style={{ backgroundColor: getDayColor(personalRecords.bestWorkoutVolumeDay) }}
+                  >
+                    <Text className="text-xs font-black text-boneWhite tracking-wide">
+                      {getDayLabel(personalRecords.bestWorkoutVolumeDay)}
+                    </Text>
+                  </View>
+                  <Text className="text-xs text-muted">
+                    {formatDate(personalRecords.bestWorkoutVolumeDate)}
+                  </Text>
+                </View>
               </View>
-            </View>
+            </CyberCard>
           </View>
         )}
 
+        {/* Exercise PRs */}
         {hasPRs ? (
-          <View style={styles.exercisesSection}>
-            <Text style={styles.sectionTitle}>EXERCISE PRs</Text>
+          <View>
+            <View className="flex-row items-center mb-3">
+              <View className="w-1 h-4 mr-2" style={{ backgroundColor: COLORS.xpGold }} />
+              <Text className="text-xs tracking-widest uppercase" style={{ color: COLORS.xpGold }}>
+                Exercise PRs
+              </Text>
+            </View>
+
             {sortedPRs.map((pr) => (
               <PRCard key={pr.exerciseId} pr={pr} />
             ))}
           </View>
         ) : (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>No Records Yet</Text>
-            <Text style={styles.emptyStateText}>
-              Complete workouts with weight tracking to start recording your personal bests.
-            </Text>
-          </View>
+          <CyberCard variant="default" glowIntensity="none">
+            <View className="items-center p-10">
+              <Text className="text-lg font-bold text-muted mb-2">No Records Yet</Text>
+              <Text className="text-sm text-muted text-center opacity-60 leading-5">
+                Complete workouts with weight tracking to start recording your personal bests.
+              </Text>
+            </View>
+          </CyberCard>
         )}
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.nightBlack },
-  content: { padding: 15, paddingBottom: 40 },
-
-  header: { marginBottom: 20, alignItems: "center" },
-  title: {
-    fontSize: 32,
-    letterSpacing: 4,
-    color: COLORS.boneWhite,
-    fontWeight: "900",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.muted,
-    marginTop: 5,
-    letterSpacing: 1,
-  },
-
-  sectionTitle: {
-    fontSize: 12,
-    letterSpacing: 2,
-    color: COLORS.longevityGold,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
-
-  bestWorkoutSection: {
-    marginBottom: 24,
-  },
-  bestWorkoutCard: {
-    borderWidth: 1,
-    borderColor: COLORS.longevityGold,
-    backgroundColor: COLORS.concreteGray,
-    padding: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  bestWorkoutMain: {
-    flex: 1,
-  },
-  bestWorkoutValue: {
-    fontSize: 28,
-    fontWeight: "900",
-  },
-  bestWorkoutLabel: {
-    fontSize: 11,
-    color: COLORS.muted,
-    marginTop: 4,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  bestWorkoutMeta: {
-    alignItems: "flex-end",
-  },
-  dayBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginBottom: 6,
-  },
-  dayBadgeText: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: COLORS.boneWhite,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-  },
-  bestWorkoutDate: {
-    fontSize: 11,
-    color: COLORS.muted,
-  },
-
-  exercisesSection: {
-    marginBottom: 20,
-  },
-
-  prCard: {
-    borderWidth: 1,
-    borderColor: COLORS.steelGray,
-    backgroundColor: COLORS.concreteGray,
-    padding: 15,
-    marginBottom: 10,
-  },
-  exerciseName: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: COLORS.boneWhite,
-    marginBottom: 12,
-    letterSpacing: 0.5,
-  },
-  prStatsRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  prStat: {
-    flex: 1,
-    alignItems: "center",
-  },
-  prDivider: {
-    width: 1,
-    backgroundColor: COLORS.steelGray,
-    marginHorizontal: 15,
-  },
-  prValue: {
-    fontSize: 18,
-    fontWeight: "800",
-  },
-  prLabel: {
-    fontSize: 10,
-    color: COLORS.muted,
-    marginTop: 4,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  prDate: {
-    fontSize: 10,
-    color: "#555",
-    marginTop: 4,
-  },
-
-  emptyState: {
-    alignItems: "center",
-    padding: 40,
-    borderWidth: 1,
-    borderColor: COLORS.steelGray,
-    backgroundColor: COLORS.concreteGray,
-  },
-  emptyStateTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: COLORS.muted,
-    marginBottom: 8,
-  },
-  emptyStateText: {
-    fontSize: 13,
-    color: "#555",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-});
