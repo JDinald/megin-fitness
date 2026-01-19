@@ -12,27 +12,31 @@ A React Native fitness tracking app for a 3-day sustainable workout program.
 ## Installation
 
 ```bash
+# Install dependencies
 npm install
+
+# Install Expo-compatible native packages
+npx expo install expo-system-ui expo-linear-gradient expo-status-bar react-native-safe-area-context react-native-screens react-native-mmkv
 ```
 
 ## Running the App
 
 This app uses `react-native-mmkv` which requires native code. It **will not work in Expo Go**. You need to use a development build.
 
-### Option 1: Development Build (Recommended)
+### Development Build (Recommended)
 
 ```bash
-# Create a development build
+# Generate native projects
 npx expo prebuild
-
-# Run on iOS simulator
-npx expo run:ios
 
 # Run on Android emulator
 npx expo run:android
+
+# Run on iOS simulator (macOS only)
+npx expo run:ios
 ```
 
-### Option 2: EAS Build (Cloud)
+### EAS Build (Cloud)
 
 ```bash
 # Install EAS CLI
@@ -42,14 +46,10 @@ npm install -g eas-cli
 eas login
 
 # Create development build
-eas build --profile development --platform ios
-# or
 eas build --profile development --platform android
+# or
+eas build --profile development --platform ios
 ```
-
-### Option 3: Web (Limited)
-
-MMKV is not supported on web. For web testing, you would need to add a fallback storage adapter.
 
 ## Project Structure
 
