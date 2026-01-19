@@ -21,7 +21,7 @@ A React Native (Expo) fitness tracking app for a 3-day sustainable workout progr
 ```
 src/
 ├── components/          # Reusable UI components
-│   ├── ExerciseCard.tsx    # Individual exercise with checkbox, sets tracker
+│   ├── ExerciseCard.tsx    # Individual exercise with checkbox, sets tracker, weight input
 │   ├── ProgressBar.tsx     # Workout completion progress
 │   └── WorkoutHeader.tsx   # Day label, title, duration header
 │
@@ -29,10 +29,10 @@ src/
 │   ├── MondayScreen.tsx       # Day 1: Power (orange theme)
 │   ├── WednesdayScreen.tsx    # Day 2: Survival (green theme)
 │   ├── FridayScreen.tsx       # Day 3: Beast (purple theme)
-│   └── StatsScreen.tsx        # Placeholder for future stats
+│   └── StatsScreen.tsx        # Training statistics & volume tracking
 │
 ├── store/               # State management (Zustand)
-│   └── workoutStore.ts      # Unified store keyed by day
+│   └── workoutStore.ts      # Unified store keyed by day + stats hooks
 │
 ├── services/            # External integrations
 │   └── mmkv.ts             # MMKV storage for Zustand persist
@@ -43,13 +43,13 @@ src/
 │   └── fridayWorkoutData.ts      # Friday exercise definitions
 │
 ├── types/               # TypeScript definitions
-│   └── workout.ts          # Exercise, PersistedState types
+│   └── workout.ts          # Exercise, PersistedState, WorkoutStats types
 │
 ├── theme/               # Design system
 │   └── index.ts            # Color palette (COLORS)
 │
 └── navigation/          # Navigation setup
-    └── TabNavigator.tsx    # Placeholder for Mon/Wed/Fri tabs
+    └── TabNavigator.tsx    # Mon/Wed/Fri + Stats tabs
 ```
 
 ## Key Patterns
@@ -84,6 +84,7 @@ type Exercise = {
   rightTop: string;              // Sets x reps or duration
   rightBottom?: string;          // Rest period
   setsCount?: number;            // 0 = no set tracker, >0 = show buttons
+  repsPerSet?: number;           // Reps per set (for volume calculation)
 };
 ```
 
@@ -94,6 +95,7 @@ type Exercise = {
 | Monday    | infectedOrange   | #FF4500   |
 | Wednesday | toxicGreen       | #39FF14   |
 | Friday    | beastPurple      | #4a0080   |
+| Stats     | longevityGold    | #D4AF37   |
 
 Pull/longevity exercises always use `longevityGold` (#D4AF37).
 
@@ -101,7 +103,16 @@ Pull/longevity exercises always use `longevityGold` (#D4AF37).
 
 All workout state is stored in a single key: `"workouts-v1"`
 
-State structure: `{ days: { monday: {...}, wednesday: {...}, friday: {...} } }`
+State structure:
+```typescript
+{
+  days: {
+    monday: { checked, setsDone, weights },
+    wednesday: { checked, setsDone, weights, cardioOption },
+    friday: { checked, setsDone, weights }
+  }
+}
+```
 
 ## Component Props
 
@@ -111,9 +122,11 @@ State structure: `{ days: { monday: {...}, wednesday: {...}, friday: {...} } }`
   ex: Exercise;
   checked: boolean;
   setsDone?: boolean[];
+  weights?: number[];              // Weight in kg per set
   onToggle: () => void;
   onToggleSet: (setIndex: number) => void;
-  primaryColor?: string;  // Day-specific accent color
+  onSetWeight?: (setIndex: number, weight: number) => void;
+  primaryColor?: string;           // Day-specific accent color
 }
 ```
 
@@ -134,6 +147,83 @@ State structure: `{ days: { monday: {...}, wednesday: {...}, friday: {...} } }`
   totalCount: number;
   progress: number;    // 0-1
 }
+```
+
+## Weight Tracking
+
+Each exercise with `repsPerSet` defined displays a weight input field (in kg) below each set button. Weights are:
+- Persisted per set in the store
+- Used for calculating training volume (weight × reps)
+- Displayed in the Stats screen
+
+### Adding Weight Tracking to an Exercise
+
+Add `repsPerSet` to the exercise definition:
+```typescript
+{
+  id: "mon-ex5",
+  name: "Barbell Back Squat",
+  rightTop: "4 × 5",
+  setsCount: 4,
+  repsPerSet: 5  // Enables weight input
+}
+```
+
+## Training Statistics
+
+The `StatsScreen` displays comprehensive training metrics:
+
+### Total Stats
+- **Total Volume**: Sum of (weight × reps) across all exercises
+- **Total Sets**: Count of completed sets
+- **Total Reps**: Sum of all reps performed
+- **Avg Weight/Rep**: Total volume divided by total reps
+
+### Per-Day Stats
+Each day (Monday, Wednesday, Friday) shows:
+- Volume, sets, reps, and average weight
+- Per-exercise breakdown with individual stats
+
+### Using Stats in Code
+
+```typescript
+import { useWorkoutStats } from "../store/workoutStore";
+
+function MyComponent() {
+  const stats = useWorkoutStats();
+
+  // stats.monday, stats.wednesday, stats.friday - per day stats
+  // stats.total - aggregate stats
+
+  // Each contains:
+  // - totalVolume: number
+  // - totalSets: number
+  // - totalReps: number
+  // - averageWeightPerRep: number
+  // - exerciseStats: ExerciseStats[] (per-day only)
+}
+```
+
+### Stats Types
+
+```typescript
+type WorkoutStats = {
+  totalVolume: number;       // Total weight × reps
+  totalSets: number;
+  totalReps: number;
+  averageWeightPerRep: number;
+  exerciseStats: ExerciseStats[];
+};
+
+type ExerciseStats = {
+  exerciseId: string;
+  exerciseName: string;
+  totalVolume: number;
+  setsCompleted: number;
+  totalReps: number;
+  weights: number[];
+  averageWeight: number;
+};
 ```
 
 ## Available Colors (COLORS)
@@ -166,4 +256,7 @@ npx expo start
 - [x] Wednesday - Survival Day (Zone 2 + Core + Mobility)
 - [x] Friday - Beast Day (Heavy Compounds)
 - [x] Tab Navigation between days
-- [ ] Stats/History screen
+- [x] Weight tracking per set
+- [x] Stats screen with volume tracking
+- [ ] Historical data / workout history
+- [ ] Personal records (PRs) tracking
