@@ -4,13 +4,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ExerciseCard } from "../components/ExerciseCard";
 import { ProgressBar } from "../components/ProgressBar";
 import { WorkoutHeader } from "../components/WorkoutHeader";
-import { EXERCISES } from "../utils/workoutData";
+import { FRIDAY_EXERCISES } from "../utils/fridayWorkoutData";
 import { COLORS } from "../theme";
-import { useWorkoutStore } from "../store/workoutStore";
+import { useFridayWorkoutStore } from "../store/workoutStore";
 
-export function WorkoutScreen() {
-  const { state, completedCount, progress, toggleExercise, toggleSet, resetWorkout } = useWorkoutStore();
-  const totalExercises = EXERCISES.length;
+export function FridayScreen() {
+  const { state, completedCount, progress, toggleExercise, toggleSet, resetWorkout } = useFridayWorkoutStore();
+  const totalExercises = FRIDAY_EXERCISES.length;
 
   const handleResetWorkout = () => {
     const doReset = async () => {
@@ -79,7 +79,7 @@ export function WorkoutScreen() {
         {/* Sections */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Warm-up - 8 min</Text>
-          {EXERCISES.filter((x) => x.section === "warmup").map((ex) => (
+          {FRIDAY_EXERCISES.filter((x) => x.section === "warmup").map((ex) => (
             <ExerciseCard
               key={ex.id}
               ex={ex}
@@ -93,7 +93,7 @@ export function WorkoutScreen() {
 
         <View style={styles.section}>
           <Text style={[styles.sectionHeader, styles.sectionHeaderBeast]}>Main Work - Beast Mode</Text>
-          {EXERCISES.filter((x) => x.section === "main").map((ex) => (
+          {FRIDAY_EXERCISES.filter((x) => x.section === "main").map((ex) => (
             <ExerciseCard
               key={ex.id}
               ex={ex}
@@ -107,7 +107,7 @@ export function WorkoutScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Finisher - Empty The Tank</Text>
-          {EXERCISES.filter((x) => x.section === "finisher").map((ex) => (
+          {FRIDAY_EXERCISES.filter((x) => x.section === "finisher").map((ex) => (
             <ExerciseCard
               key={ex.id}
               ex={ex}

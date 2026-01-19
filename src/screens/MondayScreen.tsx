@@ -6,7 +6,7 @@ import { ProgressBar } from "../components/ProgressBar";
 import { WorkoutHeader } from "../components/WorkoutHeader";
 import { MONDAY_EXERCISES } from "../utils/mondayWorkoutData";
 import { COLORS } from "../theme";
-import { useMondayWorkoutStore } from "../store/mondayWorkoutStore";
+import { useMondayWorkoutStore } from "../store/workoutStore";
 
 export function MondayScreen() {
   const { state, completedCount, progress, toggleExercise, toggleSet, resetWorkout } = useMondayWorkoutStore();

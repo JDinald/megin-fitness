@@ -7,14 +7,14 @@ A React Native (Expo) fitness tracking app for a 3-day sustainable workout progr
 ### Current
 - **Framework:** React Native with Expo SDK 54
 - **Language:** TypeScript
-- **State Management:** Custom hooks with React useState/useEffect
-- **Storage:** @react-native-async-storage/async-storage
+- **State Management:** Zustand with persist middleware
+- **Storage:** react-native-mmkv
 - **Styling:** React Native StyleSheet + expo-linear-gradient
 
-### To-Do
-- [ ] Expo SDK 54 (managed workflow)
-- [ ] Zustand (state)
-- [ ] MMKV (storage)
+### Completed
+- [x] Expo SDK 54 (managed workflow)
+- [x] Zustand (state)
+- [x] MMKV (storage)
 
 ## Project Structure
 
@@ -26,21 +26,21 @@ src/
 │   └── WorkoutHeader.tsx   # Day label, title, duration header
 │
 ├── screens/             # Full-screen page components
-│   ├── MondayScreen.tsx    # Day 1: Power (orange theme)
-│   ├── WorkoutScreen.tsx   # Day 3: Friday Beast (purple theme)
-│   └── StatsScreen.tsx     # Placeholder for future stats
+│   ├── MondayScreen.tsx       # Day 1: Power (orange theme)
+│   ├── WednesdayScreen.tsx    # Day 2: Survival (green theme)
+│   ├── FridayScreen.tsx       # Day 3: Beast (purple theme)
+│   └── StatsScreen.tsx        # Placeholder for future stats
 │
-├── store/               # State management hooks
-│   ├── mondayWorkoutStore.ts   # Monday state & persistence
-│   └── workoutStore.ts         # Friday state & persistence
+├── store/               # State management (Zustand)
+│   └── workoutStore.ts      # Unified store keyed by day
 │
 ├── services/            # External integrations
-│   ├── mondayStorage.ts    # AsyncStorage for Monday
-│   └── storage.ts          # AsyncStorage for Friday
+│   └── mmkv.ts             # MMKV storage for Zustand persist
 │
 ├── utils/               # Data & utilities
-│   ├── mondayWorkoutData.ts    # Monday exercise definitions
-│   └── workoutData.ts          # Friday exercise definitions
+│   ├── mondayWorkoutData.ts      # Monday exercise definitions
+│   ├── wednesdayWorkoutData.ts   # Wednesday exercise definitions
+│   └── fridayWorkoutData.ts      # Friday exercise definitions
 │
 ├── types/               # TypeScript definitions
 │   └── workout.ts          # Exercise, PersistedState types
@@ -62,15 +62,13 @@ src/
    export const {DAY}_EXERCISES: Exercise[] = [...];
    ```
 
-2. **Create storage service** in `src/services/{day}Storage.ts`:
-   - Use unique storage key: `"{day}-sustainable-v1"`
-
-3. **Create store hook** in `src/store/{day}WorkoutStore.ts`:
-   - Import day-specific exercises and storage
+2. **Add day to unified store** in `src/store/workoutStore.ts`:
+   - Add day ID to `DayId` type
+   - Add default state in `getDefaultDayState()`
    - Export `use{Day}WorkoutStore()` hook
 
-4. **Create screen** in `src/screens/{Day}Screen.tsx`:
-   - Import day-specific store and exercises
+3. **Create screen** in `src/screens/{Day}Screen.tsx`:
+   - Import day-specific hook from `../store/workoutStore`
    - Set `primaryColor` prop on ExerciseCard for day theme
 
 ### Exercise Data Structure
@@ -99,11 +97,11 @@ type Exercise = {
 
 Pull/longevity exercises always use `longevityGold` (#D4AF37).
 
-### Storage Keys
+### Storage Key (MMKV)
 
-- Monday: `"monday-sustainable-v1"`
-- Wednesday: `"wednesday-sustainable-v1"` (+ `"wednesday-sustainable-option"` for cardio selection)
-- Friday: `"friday-sustainable-v1"`
+All workout state is stored in a single key: `"workouts-v1"`
+
+State structure: `{ days: { monday: {...}, wednesday: {...}, friday: {...} } }`
 
 ## Component Props
 
