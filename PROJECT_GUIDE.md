@@ -26,20 +26,23 @@ src/
 │   └── WorkoutHeader.tsx   # Day label, title, duration header
 │
 ├── screens/             # Full-screen page components
-│   ├── MondayScreen.tsx    # Day 1: Power (orange theme)
-│   ├── WorkoutScreen.tsx   # Day 3: Friday Beast (purple theme)
-│   └── StatsScreen.tsx     # Placeholder for future stats
+│   ├── MondayScreen.tsx       # Day 1: Power (orange theme)
+│   ├── WednesdayScreen.tsx    # Day 2: Survival (green theme)
+│   ├── FridayScreen.tsx       # Day 3: Beast (purple theme)
+│   └── StatsScreen.tsx        # Placeholder for future stats
 │
-├── store/               # State management hooks
-│   ├── mondayWorkoutStore.ts   # Monday state & persistence
-│   └── workoutStore.ts         # Friday state & persistence
+├── store/               # State management (Zustand)
+│   ├── mondayWorkoutStore.ts     # Monday state & persistence
+│   ├── wednesdayWorkoutStore.ts  # Wednesday state & persistence
+│   └── fridayWorkoutStore.ts     # Friday state & persistence
 │
 ├── services/            # External integrations
 │   └── mmkv.ts             # MMKV storage for Zustand persist
 │
 ├── utils/               # Data & utilities
-│   ├── mondayWorkoutData.ts    # Monday exercise definitions
-│   └── workoutData.ts          # Friday exercise definitions
+│   ├── mondayWorkoutData.ts      # Monday exercise definitions
+│   ├── wednesdayWorkoutData.ts   # Wednesday exercise definitions
+│   └── fridayWorkoutData.ts      # Friday exercise definitions
 │
 ├── types/               # TypeScript definitions
 │   └── workout.ts          # Exercise, PersistedState types

@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MondayScreen } from "../screens/MondayScreen";
 import { WednesdayScreen } from "../screens/WednesdayScreen";
-import { WorkoutScreen } from "../screens/WorkoutScreen";
+import { FridayScreen } from "../screens/FridayScreen";
 import { COLORS } from "../theme";
 
 const Tab = createBottomTabNavigator();
@@ -55,7 +55,7 @@ export function TabNavigator() {
       />
       <Tab.Screen
         name="Friday"
-        component={WorkoutScreen}
+        component={FridayScreen}
         options={{
           tabBarLabel: "FRI",
           tabBarIcon: ({ focused }) => (

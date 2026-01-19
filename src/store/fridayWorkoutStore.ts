@@ -2,12 +2,12 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { PersistedState, Exercise } from "../types/workout";
 import { zustandStorage } from "../services/mmkv";
-import { EXERCISES } from "../utils/workoutData";
+import { FRIDAY_EXERCISES } from "../utils/fridayWorkoutData";
 
 function getDefaultState(): PersistedState {
   const checked: Record<string, boolean> = {};
   const setsDone: Record<string, boolean[]> = {};
-  for (const ex of EXERCISES) {
+  for (const ex of FRIDAY_EXERCISES) {
     checked[ex.id] = false;
     if (ex.setsCount && ex.setsCount > 0) {
       setsDone[ex.id] = Array(ex.setsCount).fill(false);
@@ -16,15 +16,15 @@ function getDefaultState(): PersistedState {
   return { checked, setsDone };
 }
 
-interface WorkoutActions {
+interface FridayWorkoutActions {
   toggleExercise: (id: string) => void;
   toggleSet: (ex: Exercise, setIndex: number) => void;
   resetWorkout: () => void;
 }
 
-type WorkoutState = PersistedState & WorkoutActions;
+type FridayWorkoutState = PersistedState & FridayWorkoutActions;
 
-const useWorkoutStoreInternal = create<WorkoutState>()(
+const useFridayWorkoutStoreInternal = create<FridayWorkoutState>()(
   persist(
     (set) => ({
       ...getDefaultState(),
@@ -69,14 +69,14 @@ const useWorkoutStoreInternal = create<WorkoutState>()(
   )
 );
 
-export function useWorkoutStore() {
-  const state = useWorkoutStoreInternal();
+export function useFridayWorkoutStore() {
+  const state = useFridayWorkoutStoreInternal();
 
-  const completedCount = EXERCISES.reduce(
+  const completedCount = FRIDAY_EXERCISES.reduce(
     (acc, ex) => acc + (state.checked[ex.id] ? 1 : 0),
     0
   );
-  const progress = EXERCISES.length === 0 ? 0 : completedCount / EXERCISES.length;
+  const progress = FRIDAY_EXERCISES.length === 0 ? 0 : completedCount / FRIDAY_EXERCISES.length;
 
   return {
     state: { checked: state.checked, setsDone: state.setsDone },
