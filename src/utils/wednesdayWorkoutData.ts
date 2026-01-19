@@ -29,6 +29,7 @@ export const WEDNESDAY_CORE_EXERCISES: Exercise[] = [
     rightTop: "3 × 10 each",
     rightBottom: "30s rest",
     setsCount: 3,
+    repsPerSet: 10,
   },
   {
     id: "wed-ex2",

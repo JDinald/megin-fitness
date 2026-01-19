@@ -9,7 +9,7 @@ import { COLORS } from "../theme";
 import { useMondayWorkoutStore } from "../store/workoutStore";
 
 export function MondayScreen() {
-  const { state, completedCount, progress, toggleExercise, toggleSet, resetWorkout } = useMondayWorkoutStore();
+  const { state, completedCount, progress, toggleExercise, toggleSet, setWeight, resetWorkout } = useMondayWorkoutStore();
   const totalExercises = MONDAY_EXERCISES.length;
 
   const handleResetWorkout = () => {
@@ -85,8 +85,10 @@ export function MondayScreen() {
               ex={ex}
               checked={!!state.checked[ex.id]}
               setsDone={state.setsDone[ex.id]}
+              weights={state.weights[ex.id]}
               onToggle={() => toggleExercise(ex.id)}
               onToggleSet={(i) => toggleSet(ex, i)}
+              onSetWeight={(i, w) => setWeight(ex.id, i, w)}
               primaryColor={COLORS.infectedOrange}
             />
           ))}
@@ -100,8 +102,10 @@ export function MondayScreen() {
               ex={ex}
               checked={!!state.checked[ex.id]}
               setsDone={state.setsDone[ex.id]}
+              weights={state.weights[ex.id]}
               onToggle={() => toggleExercise(ex.id)}
               onToggleSet={(i) => toggleSet(ex, i)}
+              onSetWeight={(i, w) => setWeight(ex.id, i, w)}
               primaryColor={COLORS.infectedOrange}
             />
           ))}
@@ -115,8 +119,10 @@ export function MondayScreen() {
               ex={ex}
               checked={!!state.checked[ex.id]}
               setsDone={state.setsDone[ex.id]}
+              weights={state.weights[ex.id]}
               onToggle={() => toggleExercise(ex.id)}
               onToggleSet={(i) => toggleSet(ex, i)}
+              onSetWeight={(i, w) => setWeight(ex.id, i, w)}
               primaryColor={COLORS.infectedOrange}
             />
           ))}

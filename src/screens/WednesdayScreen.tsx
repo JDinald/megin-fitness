@@ -22,6 +22,7 @@ export function WednesdayScreen() {
     progress,
     toggleExercise,
     toggleSet,
+    setWeight,
     selectCardioOption,
     resetWorkout,
   } = useWednesdayWorkoutStore();
@@ -121,8 +122,10 @@ export function WednesdayScreen() {
             ex={currentCardioExercise}
             checked={!!state.checked[currentCardioExercise.id]}
             setsDone={state.setsDone[currentCardioExercise.id]}
+            weights={state.weights[currentCardioExercise.id]}
             onToggle={() => toggleExercise(currentCardioExercise.id)}
             onToggleSet={() => {}}
+            onSetWeight={(i, w) => setWeight(currentCardioExercise.id, i, w)}
             primaryColor={COLORS.toxicGreen}
           />
         </View>
@@ -136,8 +139,10 @@ export function WednesdayScreen() {
               ex={ex}
               checked={!!state.checked[ex.id]}
               setsDone={state.setsDone[ex.id]}
+              weights={state.weights[ex.id]}
               onToggle={() => toggleExercise(ex.id)}
               onToggleSet={(i) => toggleSet(ex, i)}
+              onSetWeight={(i, w) => setWeight(ex.id, i, w)}
               primaryColor={COLORS.toxicGreen}
             />
           ))}
@@ -152,8 +157,10 @@ export function WednesdayScreen() {
               ex={ex}
               checked={!!state.checked[ex.id]}
               setsDone={state.setsDone[ex.id]}
+              weights={state.weights[ex.id]}
               onToggle={() => toggleExercise(ex.id)}
               onToggleSet={(i) => toggleSet(ex, i)}
+              onSetWeight={(i, w) => setWeight(ex.id, i, w)}
               primaryColor={COLORS.longevityGold}
             />
           ))}
